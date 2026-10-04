@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>課程資料卡</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f8;--card:#fff;--ink:#17294d;--sub:#5b6b86;--line:#c9d4e3;--hl:#ffe36e;--accent:#2f5fd0;--on:#fff;--ok:#1d7a46;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#101826;--card:#1a2638;--ink:#e8eefb;--sub:#9db0cf;--line:#32435f;--hl:#6b5a10;--accent:#7ea2ff;--on:#0d1a33;--ok:#6fd49b;--bad:#ff9a90}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:960px;margin:0 auto;padding:20px 16px 40px;display:grid;gap:20px}
+@media(min-width:800px){.two{grid-template-columns:1fr 1fr;align-items:start}}
+.two{display:grid;gap:20px}
+h1{font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.9rem;margin:0}
+h1 span{background:linear-gradient(transparent 55%,var(--hl) 55%)}
+h2{margin:0}
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px}
+label{display:block;font-weight:700;margin:14px 0 6px}
+.first{margin-top:0}
+input[type=text],input[type=email],input[type=password],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px}
+textarea{min-height:110px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.drop{display:flex;justify-content:center;border:2px dashed var(--line);border-radius:10px;padding:16px;cursor:pointer;color:var(--sub);text-align:center;font-weight:400;margin:0}
+.hide{position:absolute;opacity:0;width:1px;height:1px}
+.count{font-size:.8rem;color:var(--sub);text-align:right}
+.btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;border-radius:8px;padding:10px 16px;cursor:pointer;border:1.5px solid var(--accent)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--accent);color:var(--on)}
+.ghost{background:transparent;color:var(--accent)}
+.msg{min-height:1.5em;color:var(--sub);margin:10px 0 0}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.photo{aspect-ratio:4/3;border-radius:10px;background:var(--bg);border:1.5px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:.9rem}
+.photo img{width:100%;height:100%;object-fit:cover}
+.meta{margin:14px 0 4px;color:var(--sub)}
+.title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.4rem;margin:2px 0 8px;overflow-wrap:anywhere}
+.desc{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{color:var(--sub)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.item{border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--card)}
+.item .meta{margin:10px 0 2px}.item .title{font-size:1.1rem}
+.item button{margin-top:10px;padding:6px 12px;font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+<h1><span>課程資料卡</span></h1>
+<div class="two">
+<section class="panel" aria-label="填寫表單">
+  <label class="first" for="cls">班級</label>
+  <input type="text" id="cls" maxlength="40" placeholder="例如：三年二班" autocomplete="off">
+  <label for="name">姓名</label>
+  <input type="text" id="name" maxlength="40" placeholder="你的名字" autocomplete="off">
+  <label for="course">課程名稱</label>
+  <input type="text" id="course" maxlength="80" placeholder="例如：生活科學實驗" autocomplete="off">
+  <label for="desc">課程簡述</label>
+  <textarea id="desc" maxlength="300" placeholder="這門課在做什麼？用幾句話介紹。"></textarea>
+  <div class="count"><span id="n">0</span> / 300</div>
+  <label for="pic">放置照片</label>
+  <label class="drop" for="pic"><span id="dropText">點這裡選擇或拍攝照片</span></label>
+  <input type="file" id="pic" class="hide" accept="image/*">
+  <div class="btns"><button class="primary" id="send">送出</button><button class="ghost" id="reset">清空</button></div>
+  <p class="msg" id="msg" role="status"></p>
+</section>
+<section class="panel" aria-label="預覽">
+  <div class="photo" id="photo">尚未放置照片</div>
+  <p class="meta" id="pMeta"></p><h2 class="title" id="pTitle"></h2><p class="desc" id="pDesc"></p>
+</section>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var $=function(i){return document.getElementById(i)};
+var cls=$('cls'),nm=$('name'),co=$('course'),de=$('desc'),pic=$('pic'),msg=$('msg');
+var blob=null,preview='';
+function say(t,k){msg.textContent=t;msg.className='msg'+(k?' '+k:'')}
+function set(el,v,ph){el.textContent='';if(v){el.textContent=v}else{var s=document.createElement('span');s.className='empty';s.textContent=ph;el.appendChild(s)}}
+function render(){
+  set($('pMeta'),[cls.value.trim(),nm.value.trim()].filter(Boolean).join('　'),'班級　姓名');
+  set($('pTitle'),co.value.trim(),'課程名稱');
+  set($('pDesc'),de.value.trim(),'課程簡述會顯示在這裡');
+  $('n').textContent=de.value.length;
+  var p=$('photo');p.textContent='';
+  if(preview){var i=document.createElement('img');i.src=preview;i.alt='課程照片';p.appendChild(i)}else{p.textContent='尚未放置照片'}
+}
+[cls,nm,co,de].forEach(function(e){e.addEventListener('input',render)});
+pic.addEventListener('change',function(){
+  var f=pic.files&&pic.files[0];if(!f)return;
+  var url=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){
+    var s=Math.min(1,1200/Math.max(im.width,im.height));
+    var c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    c.toBlob(function(b){blob=b;preview=c.toDataURL('image/jpeg',0.8);$('dropText').textContent='已選擇：'+f.name+'（點擊可更換）';render()},'image/jpeg',0.82);
+    URL.revokeObjectURL(url);
+  };
+  im.onerror=function(){say('這張照片無法讀取，請換一張。','bad')};
+  im.src=url;
+});
+function clearAll(){cls.value=nm.value=co.value=de.value='';pic.value='';blob=null;preview='';$('dropText').textContent='點這裡選擇或拍攝照片';render()}
+$('reset').addEventListener('click',function(){clearAll();say('')});
+$('send').addEventListener('click',async function(){
+  if(!cls.value.trim()||!nm.value.trim()||!co.value.trim()){say('請先填寫班級、姓名和課程名稱。','bad');return}
+  $('send').disabled=true;say('送出中…');
+  try{
+    var path=null;
+    if(blob){
+      path=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2))+'.jpg';
+      var up=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg'});
+      if(up.error)throw up.error;
+    }
+    var r=await sb.from('submissions').insert({class_name:cls.value.trim(),student_name:nm.value.trim(),course_name:co.value.trim(),description:de.value.trim(),photo_path:path});
+    if(r.error)throw r.error;
+    clearAll();say('已送出，謝謝！','ok');
+  }catch(e){say('送出失敗，請稍後再試。','bad');console.error(e)}
+  $('send').disabled=false;
+});
+render();
+</script>
+</body>
+</html>
