@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>幼兒園意外傷害事故紀錄表</title>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a3b52;--sub:#8a7a92;--pink:#d6457a;--pink-s:#ffe3ee;--mint:#dff6ec;--sun:#fff3cf;--sky:#e3f1ff;--lav:#efe6ff;--line:#ffd3e2;--bad:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65}
+main{max-width:640px;margin:0 auto;padding:22px 16px 48px}
+.head{text-align:center;margin-bottom:18px}
+.head .mascot{font-size:2.4rem;line-height:1}
+h1{font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.7rem;margin:6px 0 4px;color:var(--pink)}
+.head p{margin:0;color:var(--sub);font-size:.95rem}
+.card{border:2.5px solid var(--c,var(--line));background:#fff;border-radius:22px;padding:16px 16px 18px;margin:16px 0;box-shadow:0 4px 0 var(--c,var(--line))}
+.card h2{display:inline-flex;align-items:center;gap:8px;font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.15rem;margin:-30px 0 10px;background:var(--bg,var(--pink-s));border:2.5px solid var(--c,var(--line));border-radius:99px;padding:3px 14px}
+.hint{margin:0 0 8px;color:var(--sub);font-size:.92rem}
+label.l{display:block;font-weight:700;margin:12px 0 6px}
+.first{margin-top:0!important}
+input[type=text],input[type=date],textarea{width:100%;font:inherit;color:var(--ink);background:#fff;border:2.5px solid #ffe0ea;border-radius:16px;padding:11px 14px}
+textarea{min-height:130px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible,.drop:focus-within{outline:3px solid #ffb3cf;outline-offset:1px;border-color:var(--pink)}
+.err{border-color:var(--bad)!important;background:#fff6f5}
+.seg{display:flex;gap:10px}
+.seg label{flex:1;margin:0;text-align:center;border:2.5px solid #ffe0ea;border-radius:16px;padding:10px;cursor:pointer;font-weight:700;background:#fff}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg label:has(input:checked){background:var(--pink-s);border-color:var(--pink);color:var(--pink)}
+.seg.err label{border-color:var(--bad)}
+.count{font-size:.8rem;color:var(--sub);text-align:right}
+.drop{display:flex;justify-content:center;border:2.5px dashed #b9dcff;border-radius:16px;padding:18px;cursor:pointer;color:var(--sub);text-align:center;background:#fff}
+.hide{position:absolute;opacity:0;width:1px;height:1px}
+.photo{margin-top:12px;border-radius:16px;overflow:hidden;border:2.5px solid #b9dcff;display:none}
+.photo img{display:block;width:100%;max-height:300px;object-fit:cover}
+button.send{display:block;width:100%;font:inherit;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.2rem;color:#fff;background:var(--pink);border:0;border-radius:99px;padding:14px;margin-top:22px;cursor:pointer;box-shadow:0 5px 0 #a82d5a}
+button.send:active{transform:translateY(3px);box-shadow:0 2px 0 #a82d5a}
+button.send:disabled{opacity:.6}
+.msg{min-height:1.6em;text-align:center;color:var(--sub);margin:12px 0 0}
+.msg.bad{color:var(--bad);font-weight:700}
+.done{text-align:center;padding:36px 12px}
+.done .big{font-size:3rem}
+.done button{font:inherit;font-weight:700;color:var(--pink);background:#fff;border:2.5px solid var(--pink);border-radius:99px;padding:10px 22px;cursor:pointer;margin-top:12px}
+</style>
+</head>
+<body>
+<main id="app">
+<div class="head"><div class="mascot" aria-hidden="true">🐣</div><h1>意外傷害事故紀錄表</h1><p>請由上往下依序填寫，全部填完後按最下面的送出</p></div>
+
+<section class="card" style="--c:#ffd3e2;--bg:#ffe3ee">
+  <h2><span aria-hidden="true">🧒</span>幼兒資料</h2>
+  <label class="l first" for="child">幼兒姓名</label>
+  <input type="text" id="child" maxlength="40" autocomplete="off">
+  <label class="l">幼兒性別</label>
+  <div class="seg" id="genderBox"><label><input type="radio" name="gender" value="男"><span>👦 男</span></label><label><input type="radio" name="gender" value="女"><span>👧 女</span></label></div>
+  <label class="l" for="age">幼兒年齡</label>
+  <input type="text" id="age" maxlength="20" placeholder="例如：4歲2個月" autocomplete="off">
+</section>
+
+<section class="card" style="--c:#bfe9d6;--bg:#dff6ec">
+  <h2><span aria-hidden="true">🏫</span>班級與日期</h2>
+  <label class="l first" for="cls">班級</label>
+  <input type="text" id="cls" maxlength="40" placeholder="例如：檸檬班" autocomplete="off">
+  <label class="l" for="teacher">帶班老師</label>
+  <input type="text" id="teacher" maxlength="40" autocomplete="off">
+  <label class="l" for="date">發生日期</label>
+  <input type="date" id="date">
+</section>
+
+<section class="card" style="--c:#ffe29a;--bg:#fff3cf">
+  <h2><span aria-hidden="true">📝</span>事故發生情形描述</h2>
+  <p class="hint">請寫明發生時間、地點、場合、原因和受傷部位。</p>
+  <textarea id="situation" maxlength="1000"></textarea>
+  <div class="count"><span data-count="situation">0</span> / 1000</div>
+</section>
+
+<section class="card" style="--c:#b9dcff;--bg:#e3f1ff">
+  <h2><span aria-hidden="true">🩹</span>處理情形</h2>
+  <p class="hint">請寫明受傷情形及採取的臨時處理措施。</p>
+  <textarea id="handling" maxlength="800"></textarea>
+  <div class="count"><span data-count="handling">0</span> / 800</div>
+</section>
+
+<section class="card" style="--c:#d8c6ff;--bg:#efe6ff">
+  <h2><span aria-hidden="true">✅</span>處理結果</h2>
+  <p class="hint">請寫明是否恢復及恢復時間。尚未恢復可填「持續觀察中」。</p>
+  <textarea id="result" maxlength="500" style="min-height:110px"></textarea>
+  <div class="count"><span data-count="result">0</span> / 500</div>
+</section>
+
+<section class="card" style="--c:#bfe9d6;--bg:#dff6ec">
+  <h2><span aria-hidden="true">🌱</span>後期預防整改措施</h2>
+  <p class="hint">請寫明之後要如何預防類似事故。</p>
+  <textarea id="prevention" maxlength="800"></textarea>
+  <div class="count"><span data-count="prevention">0</span> / 800</div>
+</section>
+
+<section class="card" style="--c:#b9dcff;--bg:#e3f1ff">
+  <h2><span aria-hidden="true">📷</span>照片（選填）</h2>
+  <p class="hint">現場或傷處照片可不放。</p>
+  <label class="drop" for="pic"><span id="dropText">點這裡選擇或拍攝照片</span></label>
+  <input type="file" id="pic" class="hide" accept="image/*">
+  <div class="photo" id="photo"></div>
+</section>
+
+<button class="send" id="send">送出 🌈</button>
+<p class="msg" id="msg" role="status"></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var $=function(i){return document.getElementById(i)};
+var msg=$('msg'),blob=null;
+var F={child:$('child'),age:$('age'),cls:$('cls'),teacher:$('teacher'),date:$('date'),situation:$('situation'),handling:$('handling'),result:$('result'),prevention:$('prevention')};
+var ORDER=[['child','幼兒姓名'],['gender','幼兒性別'],['age','幼兒年齡'],['cls','班級'],['teacher','帶班老師'],['date','發生日期'],['situation','事故發生情形描述'],['handling','處理情形'],['result','處理結果'],['prevention','後期預防整改措施']];
+function say(t,k){msg.textContent=t;msg.className='msg'+(k?' '+k:'')}
+function gender(){var r=document.querySelector('input[name=gender]:checked');return r?r.value:''}
+function val(k){return k==='gender'?gender():F[k].value.trim()}
+['situation','handling','result','prevention'].forEach(function(k){F[k].addEventListener('input',function(){document.querySelector('[data-count='+k+']').textContent=F[k].value.length})});
+Object.keys(F).forEach(function(k){F[k].addEventListener('input',function(){F[k].classList.remove('err')})});
+document.querySelectorAll('input[name=gender]').forEach(function(r){r.addEventListener('change',function(){$('genderBox').classList.remove('err')})});
+$('pic').addEventListener('change',function(){
+  var file=this.files&&this.files[0];if(!file)return;
+  var url=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){
+    var s=Math.min(1,1200/Math.max(im.width,im.height));
+    var c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    c.toBlob(function(b){
+      blob=b;$('dropText').textContent='已選擇：'+file.name+'（點擊可更換）';
+      var p=$('photo');p.style.display='block';p.textContent='';var i=document.createElement('img');i.alt='預覽';i.src=c.toDataURL('image/jpeg',0.6);p.appendChild(i);
+    },'image/jpeg',0.82);
+    URL.revokeObjectURL(url);
+  };
+  im.onerror=function(){say('這張照片無法讀取，請換一張。','bad')};
+  im.src=url;
+});
+function firstMissing(){
+  for(var i=0;i<ORDER.length;i++){if(!val(ORDER[i][0]))return ORDER[i]}
+  return null;
+}
+$('send').addEventListener('click',async function(){
+  var m=firstMissing();
+  if(m){
+    var el=m[0]==='gender'?$('genderBox'):F[m[0]];
+    el.classList.add('err');el.scrollIntoView({behavior:'smooth',block:'center'});
+    if(m[0]!=='gender')el.focus({preventScroll:true});
+    say('還有必填欄位沒填：「'+m[1]+'」','bad');return;
+  }
+  $('send').disabled=true;say('送出中…');
+  var stage='photo';
+  try{
+    var path=null;
+    if(blob){
+      path=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2))+'.jpg';
+      var up=await sb.storage.from('incident-photos').upload(path,blob,{contentType:'image/jpeg'});
+      if(up.error)throw up.error;
+    }
+    stage='data';
+    var r=await sb.from('incidents').insert({child_name:val('child'),gender:val('gender'),age:val('age'),class_name:val('cls'),teacher_name:val('teacher'),incident_date:val('date'),situation:val('situation'),handling:val('handling'),result:val('result'),prevention:val('prevention'),photo_path:path});
+    if(r.error)throw r.error;
+    done();
+  }catch(e){
+    var m=(e&&(e.message||e.error_description||e.error))||String(e);
+    if(e&&e.statusCode)m+='（代碼 '+e.statusCode+'）';
+    if(e&&e.code)m+='（代碼 '+e.code+'）';
+    say((stage==='photo'?'照片上傳失敗：':'資料寫入失敗：')+m,'bad');console.error(e);$('send').disabled=false;
+  }
+});
+function done(){
+  var a=$('app');a.textContent='';
+  var d=document.createElement('div');d.className='done';
+  var b=document.createElement('div');b.className='big';b.textContent='🌟';
+  var h=document.createElement('h1');h.textContent='已送出';
+  var t=document.createElement('p');t.textContent='事故紀錄已送出，謝謝您。';
+  var n=document.createElement('button');n.textContent='再填一份';n.addEventListener('click',function(){location.reload()});
+  [b,h,t,n].forEach(function(x){d.appendChild(x)});a.appendChild(d);window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
