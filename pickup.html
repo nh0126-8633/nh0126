@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>延托接送紀錄</title>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a3b52;--sub:#8a7a92;--pink:#d6457a;--bad:#c0392b;--ok:#1d7a46}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:560px;margin:0 auto;padding:20px 16px 56px}
+.screen{display:none}.screen.on{display:block}
+.head{text-align:center;margin:8px 0 18px}.head .mascot{font-size:2.6rem;line-height:1}
+h1{font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.7rem;margin:6px 0 4px;color:var(--pink)}
+h2{font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.25rem;margin:0;color:var(--pink)}
+.head p{margin:0;color:var(--sub)}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}.top h2{flex:1}
+.card{border:2.5px solid var(--c,#ffd3e2);background:#fff;border-radius:22px;padding:16px;margin:30px 0 14px;box-shadow:0 4px 0 var(--c,#ffd3e2)}
+.card>h3{display:inline-flex;align-items:center;gap:8px;font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.1rem;margin:-31px 0 10px;background:var(--bg,#ffe3ee);border:2.5px solid var(--c,#ffd3e2);border-radius:99px;padding:3px 14px}
+input[type=text],input[type=password],input[type=date],input[type=time]{width:100%;font:inherit;color:var(--ink);background:#fff;border:2.5px solid #ffe0ea;border-radius:16px;padding:10px 13px}
+input:focus,button:focus-visible{outline:3px solid #ffb3cf;outline-offset:1px;border-color:var(--pink)}
+.btn{display:block;width:100%;font:inherit;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.15rem;border-radius:99px;padding:13px;margin-top:14px;cursor:pointer;color:var(--pink);background:#fff;border:2.5px solid var(--pink)}
+.btn.main{color:#fff;background:var(--pink);border:0;box-shadow:0 5px 0 #a82d5a}
+.btn.main:active{transform:translateY(3px);box-shadow:0 2px 0 #a82d5a}
+.btn:disabled{opacity:.6}
+.small{font:inherit;font-size:.85rem;color:var(--pink);background:#fff;border:2px solid #ffd3e2;border-radius:99px;padding:4px 14px;cursor:pointer;white-space:nowrap}
+.msg{min-height:1.6em;color:var(--sub);margin:10px 0 0;text-align:center}.msg.bad{color:var(--bad);font-weight:700}.msg.ok{color:var(--ok);font-weight:700}
+.hint{color:var(--sub);font-size:.92rem;margin:0 0 8px}
+.wd{font-weight:700;color:var(--sub);margin:14px 0 4px;font-size:.9rem}
+.cls{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.2rem;color:var(--ink);background:var(--bg);border:2.5px solid var(--c);border-radius:20px;padding:13px 16px;margin:8px 0;box-shadow:0 4px 0 var(--c);cursor:pointer}
+.cls:active{transform:translateY(3px);box-shadow:0 1px 0 var(--c)}
+.cls .go{margin-left:auto;color:var(--sub)}
+.sum{display:flex;gap:10px;align-items:center;justify-content:center;margin:4px 0 6px;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.15rem}
+.sum b{color:var(--pink);font-size:1.6rem}
+.kid{border:2.5px solid #ffd3e2;border-radius:20px;padding:11px 14px;margin:10px 0;background:#fff}
+.kid.done{border-color:#bfe9d6;background:#f3fcf8}
+.kr{display:flex;align-items:center;gap:10px}
+.kr .nm{flex:1;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.2rem}
+.kr .st{color:var(--ok);font-weight:700;font-size:.95rem;text-align:right}
+.go2{font:inherit;font-family:"Huninn","Noto Sans TC",sans-serif;color:#fff;background:var(--pink);border:0;border-radius:99px;padding:8px 18px;box-shadow:0 3px 0 #a82d5a;cursor:pointer}
+.go2:active{transform:translateY(2px);box-shadow:0 1px 0 #a82d5a}
+.pnl{margin-top:10px;padding-top:10px;border-top:2px dashed #ffd3e2}
+.pnl .lb{font-weight:700;font-size:.9rem;color:var(--sub);margin:8px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;border:2.5px solid #ffd3e2;background:#fff;color:var(--ink);border-radius:99px;padding:6px 14px;cursor:pointer}
+input[type=date],input[type=time]{display:block;width:100%;max-width:100%;min-width:0;height:48px;-webkit-appearance:none;appearance:none;text-align:center}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:center;margin:0}
+select{width:100%;font:inherit;color:var(--ink);background:#fff;border:2.5px solid #ffe0ea;border-radius:16px;padding:10px 13px;height:48px}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;background:#4a3b52;color:#fff;border-radius:18px;padding:12px 14px;display:none;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9}
+#toast span{flex:1}#toast button{font:inherit;font-weight:700;background:#ffe3ee;color:var(--pink);border:0;border-radius:99px;padding:6px 16px;cursor:pointer}
+.row2{display:flex;gap:8px;align-items:center}.row2 input{flex:1}
+textarea{width:100%;font:inherit;color:var(--ink);background:#fff;border:2.5px solid #ffe0ea;border-radius:16px;padding:10px 13px;min-height:100px;resize:vertical}
+.srow{display:flex;align-items:center;gap:8px;border:2.5px solid #ffd3e2;border-radius:16px;padding:8px 12px;margin:8px 0}
+.srow .nm{flex:1;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.1rem}.srow .ct{color:var(--sub);font-size:.9rem}
+.chip.x{padding:4px 6px 4px 12px}.chip.x b{margin-left:6px;color:var(--pink);cursor:pointer;padding:0 6px}
+.chip.on{background:#ffe3ee;border-color:var(--pink);color:var(--pink);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+
+<section class="screen on" id="sGate">
+  <div class="head"><div class="mascot" aria-hidden="true">🚌</div><h1>延托接送紀錄</h1><p>BG 益智遊戲教室・老師專用</p></div>
+  <div class="card" style="--c:#ffe29a;--bg:#fff3cf"><h3><span aria-hidden="true">🔑</span>老師通關密碼</h3>
+    <input type="password" id="gateCode" autocomplete="current-password" placeholder="請輸入密碼">
+    <button class="btn main" id="gateGo">進入</button>
+    <p class="msg" id="gateMsg" role="status"></p>
+  </div>
+</section>
+
+<section class="screen" id="sPick">
+  <div class="head"><div class="mascot" aria-hidden="true">🚌</div><h1>延托接送紀錄</h1><p>選日期和班級，點小朋友記錄誰接、幾點接走</p></div>
+  <div class="card" style="--c:#b9dcff;--bg:#e3f1ff"><h3><span aria-hidden="true">📅</span>日期</h3>
+    <input type="date" id="date">
+    <p class="hint" id="dateHint" style="margin-top:8px"></p>
+  </div>
+  <div class="card" style="--c:#ffd3e2;--bg:#ffe3ee"><h3><span aria-hidden="true">🏫</span>選班級</h3>
+    <div id="classes"><p class="hint">載入中…</p></div>
+    <p class="msg" id="pickMsg" role="status"></p>
+  </div>
+  <button class="btn" id="toSetup">⚙️ 管理全校班級與名單</button>
+  <button class="small" id="logout" style="display:block;margin:14px auto 0">登出</button>
+</section>
+
+<section class="screen" id="sSetup">
+  <div class="top"><button class="small" id="setBack">← 返回</button><h2>全校班級與名單</h2></div>
+  <p class="hint">這份名單只給延托接送使用，和學習單的班級名單是分開的。</p>
+  <div class="card" style="--c:#bfe9d6;--bg:#dff6ec"><h3><span aria-hidden="true">📋</span>一次貼上全校名單</h3>
+    <p class="hint">每行一位小朋友：<b>班級　姓名</b>（中間用空格、逗號或 Tab 隔開，從 Excel 複製貼上也可以）。班級不存在會自動建立，已經有的不會重複。</p>
+    <textarea id="impText" placeholder="太陽班 王小明&#10;太陽班 李小華&#10;月亮班 陳小美"></textarea>
+    <button class="btn main" id="impGo">匯入</button>
+    <p class="msg" id="impMsg" role="status"></p>
+  </div>
+  <div class="card" style="--c:#ffd3e2;--bg:#ffe3ee"><h3><span aria-hidden="true">🏫</span>目前的班級</h3>
+    <div class="row2"><input type="text" id="newCls" maxlength="40" placeholder="新增一個班級，例如：太陽班"><button class="small" id="addCls">新增</button></div>
+    <p class="msg" id="setMsg" role="status"></p>
+    <div id="setClasses"></div>
+  </div>
+</section>
+
+<section class="screen" id="sEdit">
+  <div class="top"><button class="small" id="edBack">← 返回</button><h2 id="edTitle"></h2></div>
+  <div class="card" style="--c:#ffd3e2;--bg:#ffe3ee"><h3><span aria-hidden="true">✏️</span>班級名稱（打錯可以改）</h3>
+    <div class="row2"><input type="text" id="edName" maxlength="40"><button class="small" id="edRename">儲存</button></div>
+  </div>
+  <div class="card" style="--c:#d8c6ff;--bg:#efe6ff"><h3><span aria-hidden="true">🧒</span>這班的小朋友</h3>
+    <p class="hint">點小朋友的名字，可以改名字、換到別班或刪除。</p>
+    <div id="edKids" class="chips"></div>
+    <p class="msg" id="edMsg" role="status"></p>
+    <div id="ekCard" style="display:none;margin-top:12px;padding-top:12px;border-top:2px dashed #d8c6ff">
+      <div class="lb" style="font-weight:700;color:var(--sub);font-size:.9rem;margin-bottom:6px">名字</div>
+      <input type="text" id="ekName" maxlength="40">
+      <div class="lb" style="font-weight:700;color:var(--sub);font-size:.9rem;margin:10px 0 6px">所在班級（選別班就是換班）</div>
+      <select id="ekClass"></select>
+      <button class="btn main" id="ekSave">儲存修改</button>
+      <button class="btn" id="ekDel" style="color:#c0392b;border-color:#c0392b">刪除這位小朋友</button>
+      <button class="small" id="ekCancel" style="display:block;margin:10px auto 0">取消</button>
+      <p class="msg" id="ekMsg" role="status"></p>
+    </div>
+  </div>
+  <div class="card" style="--c:#bfe9d6;--bg:#dff6ec"><h3><span aria-hidden="true">➕</span>新增小朋友</h3>
+    <p class="hint">一行一位，可以一次貼很多位。</p>
+    <textarea id="edNew" placeholder="王小明&#10;李小華"></textarea>
+    <button class="btn main" id="edAdd">新增</button>
+  </div>
+  <button class="btn" id="edDel" style="color:#c0392b;border-color:#c0392b">刪除這個班級（連同名單）</button>
+</section>
+
+<section class="screen" id="sRoster">
+  <div class="top"><button class="small" id="back">← 換班級</button><h2 id="rTitle"></h2><button class="small" id="rRefresh">重新整理</button></div>
+  <div class="sum"><span>已接走</span><b id="nDone">0</b><span>／ <span id="nAll">0</span> 位</span></div>
+  <p class="msg" id="rMsg" role="status"></p>
+  <div id="kids"></div>
+</section>
+
+</main>
+
+<div id="toast" role="status"><span id="toastTxt"></span><button id="toastUndo">撤銷</button></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+function $(i){return document.getElementById(i)}
+function pad(n){return String(n).padStart(2,'0')}
+function todayStr(){var t=new Date();return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate())}
+function nowHM(){var t=new Date();return pad(t.getHours())+':'+pad(t.getMinutes())}
+function hm(t){return String(t||'').slice(0,5)}
+function say(id,t,k){var m=$(id);m.textContent=t||'';m.className='msg'+(k?' '+k:'')}
+function errText(e){return (e&&(e.message||e.error_description||e.error))||String(e)}
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('on',s.id===id)});window.scrollTo(0,0)}
+function lsGet(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+var code=lsGet('bgcode');
+var WD=['','星期一','星期二','星期三','星期四','星期五'];
+var DAYSTYLE=[null,['#ffd3e2','#ffe3ee'],['#bfe9d6','#dff6ec'],['#ffe29a','#fff3cf'],['#b9dcff','#e3f1ff'],['#d8c6ff','#efe6ff']];
+var PICKERS=['爸爸','媽媽','爺爺','奶奶','外公','外婆','其他'];
+var S={date:todayStr(),cls:null,kids:[],rec:{},open:null};
+
+async function rpc(fn,args){
+  var r=await sb.rpc(fn,Object.assign({p_code:code},args||{}));
+  if(r.error){if(/bad code/.test(r.error.message||''))logout();throw r.error}
+  return r.data;
+}
+function logout(){code='';try{localStorage.removeItem('bgcode')}catch(e){}show('sGate')}
+
+/* ---- 通關密碼（和學習單首頁共用，輸入過一次就記住） ---- */
+$('gateGo').addEventListener('click',async function(){
+  var v=$('gateCode').value.trim();if(!v){say('gateMsg','請輸入密碼。','bad');return}
+  $('gateGo').disabled=true;say('gateMsg','確認中…');code=v;
+  try{
+    var ok=await rpc('t_check');
+    if(ok){lsSet('bgcode',code);say('gateMsg','');$('gateCode').value='';goPick()}
+    else{code='';say('gateMsg','密碼不正確，或管理員還沒設定密碼。','bad')}
+  }catch(e){code='';say('gateMsg','連線失敗：'+errText(e),'bad')}
+  $('gateGo').disabled=false;
+});
+$('gateCode').addEventListener('keydown',function(e){if(e.key==='Enter')$('gateGo').click()});
+$('logout').addEventListener('click',logout);
+
+/* ---- 選日期、班級 ---- */
+async function goPick(){
+  show('sPick');
+  $('date').value=S.date;updDateHint();
+  $('classes').innerHTML='<p class="hint">載入中…</p>';say('pickMsg','');
+  try{
+    var rows=await rpc('x_list_classes');
+    var box=$('classes');box.textContent='';
+    var cols=[['#ffd3e2','#ffe3ee'],['#bfe9d6','#dff6ec'],['#ffe29a','#fff3cf'],['#b9dcff','#e3f1ff'],['#d8c6ff','#efe6ff']];
+    (rows||[]).forEach(function(c,i){
+      var cc=cols[i%cols.length];
+      var b=document.createElement('button');b.className='cls';b.style.setProperty('--c',cc[0]);b.style.setProperty('--bg',cc[1]);
+      var n=document.createElement('span');n.textContent=c.name;var g=document.createElement('span');g.className='go';g.textContent=c.n+' 位 ›';
+      b.appendChild(n);b.appendChild(g);b.addEventListener('click',function(){openClass(c)});box.appendChild(b);
+    });
+    if(!rows||!rows.length)box.innerHTML='<p class="hint">還沒有班級。請按下面的「管理全校班級與名單」建立。</p>';
+  }catch(e){if(code)say('pickMsg','讀取失敗：'+errText(e),'bad')}
+}
+function updDateHint(){$('dateHint').textContent=S.date===todayStr()?'今天':'⚠️ 這不是今天，是在補登 '+S.date+' 的紀錄。'}
+$('date').addEventListener('change',function(){if($('date').value){S.date=$('date').value;updDateHint()}});
+
+/* ---- 小朋友名單 ---- */
+async function openClass(c){
+  S.cls=c;S.open=null;show('sRoster');$('rTitle').textContent=c.name+'　'+S.date.slice(5).replace('-','/');
+  $('kids').textContent='';say('rMsg','讀取中…');await refreshRoster();
+}
+async function refreshRoster(){
+  try{
+    var r=await Promise.all([rpc('x_list_students',{p_class_id:S.cls.id}),rpc('t_list_pickups',{p_date:S.date,p_class_id:S.cls.id})]);
+    S.kids=r[0]||[];S.rec={};(r[1]||[]).forEach(function(x){S.rec[x.student_name]=x});
+    say('rMsg',S.kids.length?'':'這個班還沒有小朋友名單，請回上一頁按「管理全校班級與名單」新增。');
+    renderKids();
+  }catch(e){if(code)say('rMsg','讀取失敗：'+errText(e),'bad')}
+}
+$('back').addEventListener('click',goPick);
+$('rRefresh').addEventListener('click',function(){say('rMsg','讀取中…');refreshRoster()});
+
+function renderKids(){
+  var box=$('kids');box.textContent='';
+  var done=S.kids.filter(function(k){return S.rec[k.name]}).length;
+  $('nDone').textContent=done;$('nAll').textContent=S.kids.length;
+  var order=S.kids.filter(function(k){return !S.rec[k.name]}).concat(S.kids.filter(function(k){return S.rec[k.name]}));
+  order.forEach(function(k){box.appendChild(kidCard(k))});
+}
+function kidCard(k){
+  var r=S.rec[k.name];
+  var c=document.createElement('div');c.className='kid'+(r?' done':'');
+  var row=document.createElement('div');row.className='kr';
+  var nm=document.createElement('span');nm.className='nm';nm.textContent=k.name;row.appendChild(nm);
+  if(r){var st=document.createElement('span');st.className='st';st.textContent='✅ '+hm(r.pickup_time)+'・'+r.picker;row.appendChild(st)}
+  var b=document.createElement('button');
+  if(r){b.className='small';b.textContent='更正'}else{b.className='go2';b.textContent='接走'}
+  b.addEventListener('click',function(){S.open=(S.open===k.id?null:k.id);renderKids()});
+  row.appendChild(b);c.appendChild(row);
+  if(S.open===k.id)c.appendChild(panel(k,r));
+  return c;
+}
+function panel(k,r){
+  var p=document.createElement('div');p.className='pnl';
+  var base=r?r.picker:(lsGet('bgpk:'+k.id)||'');
+  var sel='',other='';
+  if(base){if(PICKERS.indexOf(base)>=0&&base!=='其他')sel=base;else{sel='其他';other=base.replace(/^其他[：:（(]?/,'').replace(/[）)]$/,'')}}
+  var lb=document.createElement('div');lb.className='lb';lb.textContent='誰來接？';p.appendChild(lb);
+  var chips=document.createElement('div');chips.className='chips';p.appendChild(chips);
+  var oi=document.createElement('input');oi.type='text';oi.maxLength=20;oi.placeholder='例如：鄰居王阿姨、司機叔叔';oi.value=other;oi.style.marginTop='8px';oi.style.display=sel==='其他'?'block':'none';
+  function paint(){chips.textContent='';PICKERS.forEach(function(n){var q=document.createElement('button');q.className='chip'+(sel===n?' on':'');q.textContent=n;q.addEventListener('click',function(){sel=n;oi.style.display=n==='其他'?'block':'none';paint()});chips.appendChild(q)})}
+  paint();p.appendChild(oi);
+  var l2=document.createElement('div');l2.className='lb';l2.textContent='幾點接走？';p.appendChild(l2);
+  var ti=document.createElement('input');ti.type='time';ti.value=r?hm(r.pickup_time):nowHM();p.appendChild(ti);
+  var ok=document.createElement('button');ok.className='btn main';ok.textContent=r?'儲存更正':'確認接走';p.appendChild(ok);
+  var msg=document.createElement('p');msg.className='msg';p.appendChild(msg);
+  if(r){var del=document.createElement('button');del.className='small';del.style.display='block';del.style.margin='0 auto';del.textContent='取消這筆紀錄（還沒接走）';
+    del.addEventListener('click',async function(){
+      if(!confirm('確定取消「'+k.name+'」的接走紀錄？'))return;
+      try{await rpc('t_delete_pickup',{p_id:r.id});delete S.rec[k.name];S.open=null;renderKids()}catch(e){msg.className='msg bad';msg.textContent='取消失敗：'+errText(e)}
+    });p.appendChild(del)}
+  ok.addEventListener('click',async function(){
+    if(!sel){msg.className='msg bad';msg.textContent='請選擇誰來接。';return}
+    var who=sel;if(sel==='其他'){var o=oi.value.trim();if(!o){msg.className='msg bad';msg.textContent='請填寫是誰（例如：鄰居王阿姨）。';return}who='其他：'+o}
+    if(!ti.value){msg.className='msg bad';msg.textContent='請選擇接走時間。';return}
+    if(S.date===todayStr()){
+      var tp=ti.value.split(':'),now=new Date(),diff=(+tp[0]*60+ +tp[1])-(now.getHours()*60+now.getMinutes());
+      if(diff>10&&!confirm('時間 '+ti.value+' 比現在（'+nowHM()+'）晚，還沒到耶，確定要記這個時間嗎？'))return;
+      if(diff<-180&&!confirm('時間 '+ti.value+' 距離現在超過 3 小時，確定嗎？'))return;
+    }
+    if(!confirm('確認記錄：\n'+S.cls.name+'　'+k.name+'\n'+ti.value+'　由「'+who+'」接走？'))return;
+    ok.disabled=true;msg.className='msg';msg.textContent='儲存中…';
+    try{
+      var prev=r?{picker:r.picker,pickup_time:r.pickup_time}:null;
+      var id=await rpc('t_add_pickup',{p_class_id:S.cls.id,p_class_name:S.cls.name,p_student_name:k.name,p_picker:who,p_date:S.date,p_time:ti.value+':00'});
+      S.rec[k.name]={id:id,student_name:k.name,picker:who,pickup_time:ti.value+':00'};
+      lsSet('bgpk:'+k.id,who);S.open=null;renderKids();
+      showUndo(k,ti.value,who,prev);
+    }catch(e){ok.disabled=false;msg.className='msg bad';msg.textContent='儲存失敗：'+errText(e)+'（請確認已執行延托的 SQL）'}
+  });
+  return p;
+}
+
+
+/* ---- 按錯可以撤銷（8 秒） ---- */
+var undoTimer=null,undoFn=null;
+function showUndo(k,t,who,prev){
+  $('toastTxt').textContent='✅ '+k.name+'　'+t+'　'+who+(prev?'（已更正）':'');
+  $('toast').style.display='flex';
+  undoFn=async function(){
+    try{
+      if(prev){var id=await rpc('t_add_pickup',{p_class_id:S.cls.id,p_class_name:S.cls.name,p_student_name:k.name,p_picker:prev.picker,p_date:S.date,p_time:prev.pickup_time});S.rec[k.name]={id:id,student_name:k.name,picker:prev.picker,pickup_time:prev.pickup_time}}
+      else{await rpc('t_delete_pickup',{p_id:S.rec[k.name].id});delete S.rec[k.name]}
+      renderKids();$('toastTxt').textContent='已撤銷，'+k.name+' 恢復成'+(prev?'更正前':'還沒接走');
+    }catch(e){$('toastTxt').textContent='撤銷失敗：'+errText(e)}
+    $('toastUndo').style.display='none';setTimeout(hideToast,2500);
+  };
+  $('toastUndo').style.display='';
+  clearTimeout(undoTimer);undoTimer=setTimeout(hideToast,8000);
+}
+function hideToast(){$('toast').style.display='none';undoFn=null}
+$('toastUndo').addEventListener('click',function(){clearTimeout(undoTimer);if(undoFn)undoFn()});
+
+/* ---- 管理全校班級與名單 ---- */
+function parseImport(txt){
+  var cl=[],nm=[],bad=0;
+  txt.split(/\r?\n/).forEach(function(line){
+    line=line.trim();if(!line)return;
+    var m=line.split(/[\t,，、\s]+/).filter(Boolean);
+    if(m.length<2){bad++;return}
+    cl.push(m[0]);nm.push(m.slice(1).join(' '));
+  });
+  return {cl:cl,nm:nm,bad:bad};
+}
+async function goSetup(){
+  show('sSetup');say('setMsg','');say('impMsg','');
+  try{
+    var rows=await rpc('x_list_classes');var box=$('setClasses');box.textContent='';
+    if(!rows||!rows.length)box.innerHTML='<p class="hint">還沒有班級。</p>';
+    (rows||[]).forEach(function(c){
+      var r=document.createElement('div');r.className='srow';
+      var n=document.createElement('span');n.className='nm';n.textContent=c.name;r.appendChild(n);
+      var ct=document.createElement('span');ct.className='ct';ct.textContent=c.n+' 位';r.appendChild(ct);
+      var b=document.createElement('button');b.className='small';b.textContent='名單';b.addEventListener('click',function(){goEdit(c)});r.appendChild(b);
+      box.appendChild(r);
+    });
+  }catch(e){if(code)say('setMsg','讀取失敗：'+errText(e)+'（請確認已執行延托名單的 SQL）','bad')}
+}
+$('toSetup').addEventListener('click',goSetup);
+$('setBack').addEventListener('click',goPick);
+$('impGo').addEventListener('click',async function(){
+  var r=parseImport($('impText').value);
+  if(!r.cl.length){say('impMsg','請先貼上名單，每行「班級 姓名」。','bad');return}
+  $('impGo').disabled=true;say('impMsg','匯入中…');
+  try{
+    await rpc('x_import',{p_classes:r.cl,p_names:r.nm});
+    $('impText').value='';await goSetup();say('impMsg','已匯入 '+r.cl.length+' 位'+(r.bad?'（有 '+r.bad+' 行格式不對，已略過）':'')+'。','ok');
+  }catch(e){say('impMsg','匯入失敗：'+errText(e),'bad')}
+  $('impGo').disabled=false;
+});
+$('addCls').addEventListener('click',async function(){
+  var v=$('newCls').value.trim();if(!v){say('setMsg','請輸入班級名稱。','bad');return}
+  try{await rpc('x_add_class',{p_name:v});$('newCls').value='';goSetup()}
+  catch(e){say('setMsg',/duplicate|unique/i.test(errText(e))?'這個班級已經有了。':'新增失敗：'+errText(e),'bad')}
+});
+var ED=null,EDK=null,ALLCLS=[];
+async function goEdit(c){
+  ED=c;EDK=null;show('sEdit');$('edTitle').textContent=c.name;$('edName').value=c.name;say('edMsg','');$('edNew').value='';$('ekCard').style.display='none';
+  try{ALLCLS=await rpc('x_list_classes')||[]}catch(e){ALLCLS=[]}
+  await edLoad();
+}
+async function edLoad(){
+  try{
+    var rows=await rpc('x_list_students',{p_class_id:ED.id});var box=$('edKids');box.textContent='';
+    ED.n=(rows||[]).length;
+    if(!rows||!rows.length)say('edMsg','還沒有小朋友。');else say('edMsg',rows.length+' 位');
+    (rows||[]).forEach(function(k){
+      var c=document.createElement('button');c.className='chip';c.textContent=k.name;
+      c.addEventListener('click',function(){openKid(k)});
+      box.appendChild(c);
+    });
+  }catch(e){if(code)say('edMsg','讀取失敗：'+errText(e),'bad')}
+}
+function openKid(k){
+  EDK=k;$('ekName').value=k.name;say('ekMsg','');
+  var sel=$('ekClass');sel.textContent='';
+  ALLCLS.forEach(function(c){var o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o)});
+  sel.value=ED.id;$('ekCard').style.display='block';$('ekName').focus();
+}
+$('ekCancel').addEventListener('click',function(){EDK=null;$('ekCard').style.display='none'});
+$('ekSave').addEventListener('click',async function(){
+  if(!EDK)return;var nm=$('ekName').value.trim(),cid=$('ekClass').value;
+  if(!nm){say('ekMsg','名字不能空白。','bad');return}
+  try{
+    if(nm!==EDK.name)await rpc('x_rename_student',{p_id:EDK.id,p_name:nm});
+    if(cid!==ED.id)await rpc('x_move_student',{p_id:EDK.id,p_class_id:cid});
+    EDK=null;$('ekCard').style.display='none';await edLoad();
+    say('edMsg',cid!==ED.id?'已換班。':'已儲存。','ok');
+  }catch(e){say('ekMsg',/duplicate|unique/i.test(errText(e))?'目標班級已經有同名的小朋友了。':'儲存失敗：'+errText(e)+'（請確認已執行編輯功能的 SQL）','bad')}
+});
+$('ekDel').addEventListener('click',async function(){
+  if(!EDK||!confirm('確定刪除「'+EDK.name+'」？（他之前的接送紀錄會保留）'))return;
+  try{await rpc('x_delete_student',{p_id:EDK.id});EDK=null;$('ekCard').style.display='none';edLoad()}catch(e){say('ekMsg','刪除失敗：'+errText(e),'bad')}
+});
+$('edRename').addEventListener('click',async function(){
+  var v=$('edName').value.trim();if(!v){say('edMsg','班級名稱不能空白。','bad');return}
+  if(v===ED.name){say('edMsg','名稱沒有改變。');return}
+  if(!confirm('把「'+ED.name+'」改名為「'+v+'」？（之前的接送紀錄也會一起改成新名稱）'))return;
+  try{await rpc('x_rename_class',{p_id:ED.id,p_name:v});ED.name=v;$('edTitle').textContent=v;say('edMsg','班級名稱已更新。','ok')}
+  catch(e){say('edMsg',/duplicate|unique/i.test(errText(e))?'已經有這個班級名稱了。':'改名失敗：'+errText(e)+'（請確認已執行編輯功能的 SQL）','bad')}
+});
+$('edBack').addEventListener('click',goSetup);
+$('edAdd').addEventListener('click',async function(){
+  var names=$('edNew').value.split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+  if(!names.length){say('edMsg','請輸入名字。','bad');return}
+  try{await rpc('x_add_students',{p_class_id:ED.id,p_names:names});$('edNew').value='';edLoad()}
+  catch(e){say('edMsg','新增失敗：'+errText(e),'bad')}
+});
+$('edDel').addEventListener('click',async function(){
+  var n=ED.n||0;
+  if(!confirm('確定刪除「'+ED.name+'」整個班級'+(n?'和裡面 '+n+' 位小朋友':'')+'？之前的接送紀錄會保留。'))return;
+  if(n>0&&!confirm('再確認一次：真的要刪除「'+ED.name+'」和 '+n+' 位小朋友的名單嗎？'))return;
+  try{await rpc('x_delete_class',{p_id:ED.id});goSetup()}catch(e){say('edMsg','刪除失敗：'+errText(e),'bad')}
+});
+
+if(code){rpc('t_check').then(function(ok){if(ok)goPick();else logout()}).catch(function(){logout()})}
+</script>
+</body>
+</html>
