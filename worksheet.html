@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>BG 益智遊戲教室 學習單</title>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a3b52;--sub:#8a7a92;--pink:#d6457a;--bad:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65}
+main{max-width:640px;margin:0 auto;padding:22px 16px 48px}
+.head{text-align:center;margin-bottom:18px}.head .mascot{font-size:2.4rem;line-height:1}
+h1{font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.7rem;margin:6px 0 4px;color:var(--pink)}
+.head p{margin:0;color:var(--sub);font-size:.95rem}
+.card{border:2.5px solid var(--c);background:#fff;border-radius:22px;padding:16px 16px 18px;margin:30px 0 16px;box-shadow:0 4px 0 var(--c)}
+.card h2{display:inline-flex;align-items:center;gap:8px;font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.15rem;margin:-31px 0 10px;background:var(--bg);border:2.5px solid var(--c);border-radius:99px;padding:3px 14px}
+.hint{margin:0 0 8px;color:var(--sub);font-size:.92rem}
+label.l{display:block;font-weight:700;margin:12px 0 6px}.first{margin-top:0!important}
+input[type=text],input[type=date],textarea,select{width:100%;font:inherit;color:var(--ink);background:#fff;border:2.5px solid #ffe0ea;border-radius:16px;padding:11px 14px}
+select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--pink) 50%),linear-gradient(135deg,var(--pink) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+textarea{min-height:110px;resize:vertical}
+input:focus,textarea:focus,select:focus,button:focus-visible,.drop:focus-within{outline:3px solid #ffb3cf;outline-offset:1px;border-color:var(--pink)}
+.err{border-color:var(--bad)!important;background-color:#fff6f5}
+.count{font-size:.8rem;color:var(--sub);text-align:right}
+.thumbs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.th{position:relative;border-radius:14px;overflow:hidden;border:2.5px solid #d8c6ff}
+.th img{display:block;width:100%;height:120px;object-fit:cover}
+.th button{position:absolute;top:6px;right:6px;border:0;border-radius:99px;background:#fff;color:var(--pink);font-weight:700;width:30px;height:30px;cursor:pointer}
+.drop{display:flex;justify-content:center;border:2.5px dashed #b9dcff;border-radius:16px;padding:18px;cursor:pointer;color:var(--sub);text-align:center;background:#fff}
+.hide{position:absolute;opacity:0;width:1px;height:1px}
+.photo{margin-top:12px;border-radius:16px;overflow:hidden;border:2.5px solid #b9dcff;display:none}
+.photo img{display:block;width:100%;max-height:300px;object-fit:cover}
+.btn{display:block;width:100%;font:inherit;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.2rem;border-radius:99px;padding:14px;margin-top:16px;cursor:pointer}
+.send{color:#fff;background:var(--pink);border:0;box-shadow:0 5px 0 #a82d5a;margin-top:22px}
+.send:active{transform:translateY(3px);box-shadow:0 2px 0 #a82d5a}
+.prt{color:var(--pink);background:#fff;border:2.5px solid var(--pink)}
+.btn:disabled{opacity:.6}
+.msg{min-height:1.6em;text-align:center;color:var(--sub);margin:12px 0 0}.msg.bad{color:var(--bad);font-weight:700}
+.done{text-align:center;padding:30px 12px}.done .big{font-size:3rem}
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff!important}
+  #app{display:none!important}
+  #printArea{display:block}
+  .sheetimg{page-break-inside:avoid;margin:0;padding:0}
+  .sheetimg img{display:block;width:210mm;height:296mm;max-width:none;max-height:none;margin:0}
+}
+
+
+</style>
+</head>
+<body>
+<main id="app">
+<div class="head"><div class="mascot" aria-hidden="true">🎲</div><h1>BG 益智遊戲教室 學習單</h1><p>請由上往下填寫，選擇孩子的表現，最後可以送出或直接列印</p></div>
+
+<section class="card" style="--c:#bfe9d6;--bg:#dff6ec">
+  <h2><span aria-hidden="true">🐸</span>課程資料</h2>
+  <label class="l first" for="game">課程名稱</label>
+  <input type="text" id="game" maxlength="60" placeholder="例如：青蛙跳下水" autocomplete="off">
+  <label class="l">課程照片（選填）</label>
+  <label class="drop" for="pic"><span id="dropText">點這裡選擇或拍攝照片</span></label>
+  <input type="file" id="pic" class="hide" accept="image/*">
+  <div class="photo" id="photo"></div>
+</section>
+
+<section class="card" style="--c:#ffd3e2;--bg:#ffe3ee">
+  <h2><span aria-hidden="true">🧒</span>孩子姓名</h2>
+  <input type="text" id="student" maxlength="40" autocomplete="off">
+</section>
+
+<section class="card" style="--c:#ffe29a;--bg:#fff3cf">
+  <h2><span aria-hidden="true">⭐</span>能力星星</h2>
+  <p class="hint">請為孩子的四項能力選擇星星數。</p>
+  <label class="l first" for="s_focus">專注力</label><select id="s_focus"><option value="">請選擇</option><option value="1">⭐ 1 顆星</option><option value="2">⭐⭐ 2 顆星</option><option value="3">⭐⭐⭐ 3 顆星</option><option value="4">⭐⭐⭐⭐ 4 顆星</option></select>
+  <label class="l" for="s_reaction">反應能力</label><select id="s_reaction"><option value="">請選擇</option><option value="1">⭐ 1 顆星</option><option value="2">⭐⭐ 2 顆星</option><option value="3">⭐⭐⭐ 3 顆星</option><option value="4">⭐⭐⭐⭐ 4 顆星</option></select>
+  <label class="l" for="s_memory">記憶力</label><select id="s_memory"><option value="">請選擇</option><option value="1">⭐ 1 顆星</option><option value="2">⭐⭐ 2 顆星</option><option value="3">⭐⭐⭐ 3 顆星</option><option value="4">⭐⭐⭐⭐ 4 顆星</option></select>
+  <label class="l" for="s_logic">邏輯思考</label><select id="s_logic"><option value="">請選擇</option><option value="1">⭐ 1 顆星</option><option value="2">⭐⭐ 2 顆星</option><option value="3">⭐⭐⭐ 3 顆星</option><option value="4">⭐⭐⭐⭐ 4 顆星</option></select>
+</section>
+
+<section class="card" style="--c:#b9dcff;--bg:#e3f1ff">
+  <h2><span aria-hidden="true">😊</span>遊戲表現</h2>
+  <p class="hint">請選擇孩子在每一項的表現。</p>
+  <label class="l first" for="i_focus">專注地玩遊戲</label><select id="i_focus"><option value="">請選擇</option><option>好棒</option><option>很好</option><option>加油中</option></select>
+  <label class="l" for="i_tolerance">培養遊戲的挫折容忍度</label><select id="i_tolerance"><option value="">請選擇</option><option>好棒</option><option>很好</option><option>加油中</option></select>
+  <label class="l" for="i_cleanup">遊戲完成時能主動收拾</label><select id="i_cleanup"><option value="">請選擇</option><option>好棒</option><option>很好</option><option>加油中</option></select>
+  <label class="l" for="i_rules">理解遊戲的玩法與遵守遊戲規則</label><select id="i_rules"><option value="">請選擇</option><option>好棒</option><option>很好</option><option>加油中</option></select>
+</section>
+
+<section class="card" style="--c:#d8c6ff;--bg:#efe6ff">
+  <h2><span aria-hidden="true">📷</span>孩子操作照片</h2>
+  <p class="hint">請放孩子上課操作的照片，1～4 張，會顯示在學習單中間的大格子。</p>
+  <label class="drop" for="act" id="actDrop"><span id="actText">點這裡選擇或拍攝照片</span></label>
+  <input type="file" id="act" class="hide" accept="image/*" multiple>
+  <div class="thumbs" id="thumbs"></div>
+</section>
+
+<section class="card" style="--c:#ffd3e2;--bg:#ffe3ee">
+  <h2><span aria-hidden="true">📅</span>操作日期</h2>
+  <input type="date" id="date">
+</section>
+
+<button class="btn send" id="send">送出 🌈</button>
+<button class="btn prt" id="word">下載 Word（A4 滿版）📄</button>
+<button class="btn prt" id="prt">列印學習單 🖨️</button>
+<p class="msg" id="msg" role="status"></p>
+</main>
+<div id="printArea" aria-hidden="true"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+var $=function(i){return document.getElementById(i)};
+
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+var SH_STARS=[['專注力','star_focus'],['反應能力','star_reaction'],['記憶力','star_memory'],['邏輯思考','star_logic']];
+var SH_IND=[['ind_focus','專注地玩遊戲：'],['ind_tolerance','培養遊戲的挫折容忍度：'],['ind_cleanup','遊戲完成時能主動收拾：'],['ind_rules','理解遊戲的玩法與遵守遊戲規則：']];
+var SH_OPT=['好棒','很好','加油中'];
+var SH_FONT='"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+function starRows(n){return ({1:[1],2:[2],3:[1,2],4:[2,2]})[n]||[]}
+async function loadImg(u){
+  if(!u)return null;
+  try{
+    var src=u;
+    if(/^https?:/.test(u)){var r=await fetch(u);if(!r.ok)return null;src=URL.createObjectURL(await r.blob())}
+    return await new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src});
+  }catch(e){return null}
+}
+async function sheetFonts(d){
+  var t='BG益智遊戲教室姓名：專注力反應能力記憶力邏輯思考好棒很好加油中操作日期家長簽名／'+SH_IND.map(function(x){return x[1]}).join('')+(d.game_name||'')+(d.student_name||'')+(d.play_date||'');
+  try{await Promise.all([document.fonts.load('400 40px Huninn',t),document.fonts.load('700 40px "Noto Sans TC"',t)])}catch(e){}
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function starPath(c,cx,cy,R){c.beginPath();for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5,r=i%2?R*0.45:R;c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a))}c.closePath()}
+function drawContain(c,img,x,y,w,h,r){
+  var s=Math.min(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s,dx=x+(w-dw)/2,dy=y+(h-dh)/2;
+  c.save();rr(c,dx,dy,dw,dh,r);c.clip();c.drawImage(img,dx,dy,dw,dh);c.restore();
+}
+function fitFont(c,txt,weight,sizePx,minPx,maxW){var s=sizePx;c.font=weight+' '+s+'px '+SH_FONT;while(c.measureText(txt).width>maxW&&s>minPx){s-=2;c.font=weight+' '+s+'px '+SH_FONT}}
+async function drawSheet(d,gameUrl,actUrls){
+  await sheetFonts(d);
+  var gi=await loadImg(gameUrl),ai=[];
+  for(var q=0;q<(actUrls||[]).length&&q<4;q++){var im=await loadImg(actUrls[q]);if(im)ai.push(im)}
+  var W=1588,H=2246,k=W/210,M=function(v){return v*k};
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
+  var G='#d9d9d9',T='#44585a';
+  c.fillStyle='#fff';c.fillRect(0,0,W,H);c.textBaseline='middle';
+  // header
+  c.fillStyle=G;c.beginPath();c.moveTo(M(8),M(7));c.lineTo(M(202),M(7));c.lineTo(M(202),M(24));c.ellipse(M(105),M(24),M(97),M(20),0,0,Math.PI,false);c.closePath();c.fill();
+  c.fillStyle=T;c.textAlign='left';
+  c.font='700 '+M(14)+'px '+SH_FONT;var w1=c.measureText('BG').width;
+  c.font='700 '+M(10.5)+'px '+SH_FONT;var w2=c.measureText('益智遊戲教室').width;
+  var tx=M(105)-(w1+M(3)+w2)/2;
+  c.font='700 '+M(14)+'px '+SH_FONT;c.fillText('BG',tx,M(23));
+  c.font='700 '+M(10.5)+'px '+SH_FONT;c.fillText('益智遊戲教室',tx+w1+M(3),M(24));
+  c.font=M(11)+'px sans-serif';c.fillText('🎲',M(16),M(23));c.fillText('🧩',M(186),M(23));
+  // panels
+  c.fillStyle=G;rr(c,M(8),M(50),M(94),M(76),M(9));c.fill();rr(c,M(108),M(50),M(94),M(76),M(9));c.fill();
+  c.fillStyle=T;c.textAlign='center';fitFont(c,d.game_name||'','700',M(7.5),M(4),M(84));c.fillText(d.game_name||'',M(55),M(59));
+  c.textAlign='left';var nm='姓名：'+(d.student_name||'');fitFont(c,nm,'700',M(7.5),M(4),M(82));c.fillText(nm,M(115),M(59));
+  c.fillStyle='#fff';rr(c,M(12),M(66),M(86),M(56),M(7));c.fill();rr(c,M(112),M(66),M(86),M(56),M(7));c.fill();
+  if(gi)drawContain(c,gi,M(14),M(68),M(82),M(52),M(5));
+  SH_STARS.forEach(function(sx,i){
+    var cx=M(115+(i%2)*41.5),cy=M(69+Math.floor(i/2)*26.5),cw=M(38.5),ch=M(23.5);
+    c.fillStyle=G;rr(c,cx,cy,cw,ch,M(6));c.fill();
+    c.fillStyle=T;c.textAlign='center';c.font='700 '+M(4.4)+'px '+SH_FONT;c.fillText(sx[0],cx+cw/2,cy+M(5.6));
+    var rows=starRows(+d[sx[1]]),dy=M(6.4),dx=M(7.8),yc=cy+M(15.8);
+    rows.forEach(function(n,ri){
+      var y=yc+(ri-(rows.length-1)/2)*dy;
+      for(var j=0;j<n;j++){var x=cx+cw/2+(j-(n-1)/2)*dx;starPath(c,x,y,M(3.1));c.fillStyle='#f3b22b';c.fill()}
+    });
+  });
+  // activity photos
+  c.fillStyle=G;rr(c,M(8),M(132),M(194),M(98),M(9));c.fill();
+  var n=ai.length,cells=[];
+  if(n===1)cells=[[13,137,184,88]];
+  else if(n===2)cells=[[13,137,90,88],[107,137,90,88]];
+  else if(n===3)cells=[[13,137,184,42],[13,183,90,42],[107,183,90,42]];
+  else if(n>=4)cells=[[13,137,90,42],[107,137,90,42],[13,183,90,42],[107,183,90,42]];
+  cells.forEach(function(p,i){drawContain(c,ai[i],M(p[0]),M(p[1]),M(p[2]),M(p[3]),M(3))});
+  // footer
+  c.fillStyle=G;rr(c,M(8),M(236),M(194),M(54),M(6));c.fill();
+  SH_IND.forEach(function(x,i){
+    var y=M(246.5+i*9);
+    c.fillStyle=T;c.textAlign='right';fitFont(c,x[1],'700',M(4.3),M(3),M(104));c.fillText(x[1],M(120),y);
+    SH_OPT.forEach(function(o,j){
+      var px=M(136+j*25);
+      if(d[x[0]]===o){c.fillStyle='#fff';rr(c,px-M(10.5),y-M(3.5),M(21),M(7),M(3.5));c.fill();c.strokeStyle=T;c.lineWidth=M(0.45);c.stroke()}
+      c.fillStyle=T;c.textAlign='center';c.font='700 '+M(4.3)+'px '+SH_FONT;c.fillText(o,px,y);
+    });
+  });
+  c.fillStyle=T;c.textAlign='left';c.font='700 '+M(4.5)+'px '+SH_FONT;
+  c.fillText('操作日期：'+(d.play_date||'').replace(/-/g,'/'),M(22),M(284));c.fillText('家長簽名：',M(116),M(284));
+  return cv;
+}
+function canvasBlob(cv){return new Promise(function(r){cv.toBlob(r,'image/jpeg',0.92)})}
+async function downloadSheetWord(cvs,name){
+  var D=docx,sections=[];
+  for(var i=0;i<cvs.length;i++){
+    var buf=await (await canvasBlob(cvs[i])).arrayBuffer();
+    sections.push({properties:{page:{size:{width:11906,height:16838},margin:{top:0,right:0,bottom:0,left:0,header:0,footer:0}}},children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:0,after:0},children:[new D.ImageRun({data:buf,type:'jpg',transformation:{width:781,height:1105}})]})]});
+  }
+  var blob=await D.Packer.toBlob(new D.Document({sections:sections}));
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+function printCanvases(cvs){
+  var st=document.getElementById('pgs');if(st)st.remove();
+  st=document.createElement('style');st.id='pgs';st.textContent='@page{size:A4;margin:0}';document.head.appendChild(st);
+  window.addEventListener('afterprint',function(){var s=document.getElementById('pgs');if(s)s.remove()},{once:true});
+  var a=document.getElementById('printArea');a.textContent='';var waits=[];
+  cvs.forEach(function(cv){
+    var w=document.createElement('div');w.className='prec sheetimg';var im=document.createElement('img');im.alt='學習單';
+    waits.push(new Promise(function(res){im.onload=im.onerror=function(){res()};setTimeout(res,6000)}));
+    im.src=cv.toDataURL('image/jpeg',0.92);w.appendChild(im);a.appendChild(w);
+  });
+  return Promise.all(waits).then(function(){window.print()});
+}
+function stamp(){var t=new Date(),p=function(n){return String(n).padStart(2,'0')};return t.getFullYear()+p(t.getMonth()+1)+p(t.getDate())}
+
+var msg=$('msg'),blob=null,previewUrl='',last=null,acts=[];
+var F={game:$('game'),student:$('student'),s_focus:$('s_focus'),s_reaction:$('s_reaction'),s_memory:$('s_memory'),s_logic:$('s_logic'),i_focus:$('i_focus'),i_tolerance:$('i_tolerance'),i_cleanup:$('i_cleanup'),i_rules:$('i_rules'),date:$('date')};
+var ORDER=[['game','課程名稱'],['student','孩子姓名'],['s_focus','專注力星星'],['s_reaction','反應能力星星'],['s_memory','記憶力星星'],['s_logic','邏輯思考星星'],['i_focus','專注地玩遊戲'],['i_tolerance','培養遊戲的挫折容忍度'],['i_cleanup','遊戲完成時能主動收拾'],['i_rules','理解遊戲的玩法與遵守遊戲規則'],['date','操作日期']];
+(function(){var t=new Date(),p=function(n){return String(n).padStart(2,'0')};F.date.value=t.getFullYear()+'-'+p(t.getMonth()+1)+'-'+p(t.getDate())})();
+function say(t,k){msg.textContent=t;msg.className='msg'+(k?' '+k:'')}
+function val(k){return F[k].value.trim()}
+Object.keys(F).forEach(function(k){F[k].addEventListener('input',function(){F[k].classList.remove('err')});F[k].addEventListener('change',function(){F[k].classList.remove('err')})});
+$('pic').addEventListener('change',function(){
+  var file=this.files&&this.files[0];if(!file)return;
+  var url=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){
+    var s=Math.min(1,1200/Math.max(im.width,im.height));
+    var c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    c.toBlob(function(b){
+      blob=b;previewUrl=c.toDataURL('image/jpeg',0.85);$('dropText').textContent='已選擇：'+file.name+'（點擊可更換）';
+      var p=$('photo');p.style.display='block';p.textContent='';var i=document.createElement('img');i.alt='預覽';i.src=previewUrl;p.appendChild(i);
+    },'image/jpeg',0.82);
+    URL.revokeObjectURL(url);
+  };
+  im.onerror=function(){say('這張照片無法讀取，請換一張。','bad')};
+  im.src=url;
+});
+function shrink(file){return new Promise(function(res,rej){var url=URL.createObjectURL(file),im=new Image();im.onload=function(){var s=Math.min(1,1200/Math.max(im.width,im.height));var c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(function(b){URL.revokeObjectURL(url);res({blob:b,url:URL.createObjectURL(b)})},'image/jpeg',0.82)};im.onerror=function(){URL.revokeObjectURL(url);rej()};im.src=url})}
+function renderThumbs(){
+  var t=$('thumbs');t.textContent='';
+  acts.forEach(function(a,i){var w=el('div','th');var im=document.createElement('img');im.alt='操作照片';im.src=a.url;var x=el('button','','✕');x.type='button';x.setAttribute('aria-label','移除這張照片');x.addEventListener('click',function(){acts.splice(i,1);renderThumbs()});w.appendChild(im);w.appendChild(x);t.appendChild(w)});
+  $('actText').textContent=acts.length?'已放 '+acts.length+' 張（最多 4 張，點這裡再新增）':'點這裡選擇或拍攝照片';
+}
+$('act').addEventListener('change',async function(){
+  var files=Array.prototype.slice.call(this.files||[]);this.value='';
+  for(var i=0;i<files.length;i++){
+    if(acts.length>=4){say('最多放 4 張照片。','bad');break}
+    try{acts.push(await shrink(files[i]));say('')}catch(e){say('有一張照片無法讀取，已略過。','bad')}
+  }
+  renderThumbs();
+});
+function firstMissing(){for(var i=0;i<ORDER.length;i++){if(!val(ORDER[i][0]))return ORDER[i]}return null}
+function check(){
+  var m=firstMissing();
+  if(m){var e=F[m[0]];e.classList.add('err');e.scrollIntoView({behavior:'smooth',block:'center'});e.focus({preventScroll:true});say('還有必填欄位沒填：「'+m[1]+'」','bad');return false}
+  if(!acts.length){var dz=$('actDrop');dz.scrollIntoView({behavior:'smooth',block:'center'});say('請放至少 1 張孩子操作的照片。','bad');return false}
+  return true;
+}
+function collect(){
+  return {game_name:val('game'),student_name:val('student'),star_focus:+val('s_focus'),star_reaction:+val('s_reaction'),star_memory:+val('s_memory'),star_logic:+val('s_logic'),ind_focus:val('i_focus'),ind_tolerance:val('i_tolerance'),ind_cleanup:val('i_cleanup'),ind_rules:val('i_rules'),play_date:val('date')};
+}
+window.addEventListener('afterprint',function(){$('printArea').textContent=''});
+function actUrls(){return acts.map(function(a){return a.url})}
+async function busy(btn,label,fn){
+  var old=btn.textContent;btn.disabled=true;btn.textContent=label;
+  try{await fn()}catch(e){console.error(e);say('製作失敗，請稍後再試。','bad')}
+  btn.disabled=false;btn.textContent=old;
+}
+$('prt').addEventListener('click',function(){
+  if(!check())return;say('');
+  busy($('prt'),'準備列印…',async function(){var cv=await drawSheet(collect(),previewUrl,actUrls());await printCanvases([cv])});
+});
+$('word').addEventListener('click',function(){
+  if(!check())return;say('');
+  busy($('word'),'製作 Word 中…',async function(){
+    if(!window.docx){say('Word 工具載入失敗，請檢查網路後重新整理頁面。','bad');return}
+    var d=collect(),cv=await drawSheet(d,previewUrl,actUrls());
+    await downloadSheetWord([cv],'學習單_'+d.student_name+'_'+stamp()+'.docx');say('已產生 Word 檔，請到下載項目查看。');
+  });
+});
+$('send').addEventListener('click',async function(){
+  if(!check())return;
+  $('send').disabled=true;say('送出中…');
+  var stage='photo';
+  try{
+    var d=collect(),path=null;
+    if(blob){
+      path=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2))+'.jpg';
+      var up=await sb.storage.from('worksheet-photos').upload(path,blob,{contentType:'image/jpeg'});
+      if(up.error)throw up.error;
+    }
+    var apaths=[];
+    for(var i=0;i<acts.length;i++){
+      var ap=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2))+'.jpg';
+      var u2=await sb.storage.from('worksheet-photos').upload(ap,acts[i].blob,{contentType:'image/jpeg'});
+      if(u2.error)throw u2.error;
+      apaths.push(ap);
+    }
+    stage='data';
+    var row=Object.assign({},d,{photo_path:path,activity_photos:apaths});
+    var r=await sb.from('worksheets').insert(row);
+    if(r.error)throw r.error;
+    last={d:d,photo:previewUrl,acts:actUrls()};done();
+  }catch(e){
+    var m=(e&&(e.message||e.error_description||e.error))||String(e);
+    if(e&&e.statusCode)m+='（代碼 '+e.statusCode+'）';
+    if(e&&e.code)m+='（代碼 '+e.code+'）';
+    say((stage==='photo'?'照片上傳失敗：':'資料寫入失敗：')+m,'bad');console.error(e);$('send').disabled=false;
+  }
+});
+function done(){
+  var a=$('app');a.textContent='';
+  var d=el('div','done');d.appendChild(el('div','big','🌟'));d.appendChild(el('h1','','已送出'));d.appendChild(el('p','','學習單已送出，謝謝您。'));
+  var b0=el('button','btn prt','下載 Word（A4 滿版）📄');b0.addEventListener('click',function(){busy(b0,'製作 Word 中…',async function(){
+    if(!window.docx){say('Word 工具載入失敗，請檢查網路後重新整理頁面。','bad');return}
+    var cv=await drawSheet(last.d,last.photo,last.acts);await downloadSheetWord([cv],'學習單_'+last.d.student_name+'_'+stamp()+'.docx')})});
+  var b1=el('button','btn prt','列印學習單 🖨️');b1.addEventListener('click',function(){busy(b1,'準備列印…',async function(){var cv=await drawSheet(last.d,last.photo,last.acts);await printCanvases([cv])})});
+  var b2=el('button','btn prt','再填一份');b2.addEventListener('click',function(){location.reload()});
+  d.appendChild(b0);d.appendChild(b1);d.appendChild(b2);a.appendChild(d);window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
