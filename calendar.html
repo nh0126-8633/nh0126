@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>我的行事曆</title>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a3b52;--sub:#8a7a92;--pink:#d6457a;--bad:#c0392b;--ok:#1d7a46}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.55;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:560px;margin:0 auto;padding:16px 14px 60px}
+.screen{display:none}.screen.on{display:block}
+h1{font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.6rem;margin:4px 0;color:var(--pink);text-align:center}
+.head{text-align:center;margin:8px 0 16px}.head .mascot{font-size:2.4rem;line-height:1}.head p{margin:0;color:var(--sub)}
+.card{border:2.5px solid #ffd3e2;background:#fff;border-radius:22px;padding:14px;margin:14px 0;box-shadow:0 4px 0 #ffd3e2}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=time]{width:100%;max-width:100%;min-width:0;height:46px;font:inherit;color:var(--ink);background:#fff;border:2.5px solid #ffe0ea;border-radius:16px;padding:8px 13px;-webkit-appearance:none;appearance:none}
+input[type=date],input[type=time]{text-align:center}
+input:focus,button:focus-visible{outline:3px solid #ffb3cf;outline-offset:1px;border-color:var(--pink)}
+.btn{display:block;width:100%;font:inherit;font-family:"Huninn","Noto Sans TC",sans-serif;font-size:1.1rem;border-radius:99px;padding:11px;margin-top:10px;cursor:pointer;color:var(--pink);background:#fff;border:2.5px solid var(--pink)}
+.btn.main{color:#fff;background:var(--pink);border:0;box-shadow:0 5px 0 #a82d5a}
+.btn.main:active{transform:translateY(3px);box-shadow:0 2px 0 #a82d5a}
+.btn:disabled{opacity:.6}
+.small{font:inherit;font-size:.85rem;color:var(--pink);background:#fff;border:2px solid #ffd3e2;border-radius:99px;padding:5px 14px;cursor:pointer;white-space:nowrap}
+.small.on{background:#ffe3ee;border-color:var(--pink);font-weight:700}
+.msg{min-height:1.5em;color:var(--sub);margin:8px 0 0;text-align:center;font-size:.92rem}.msg.bad{color:var(--bad);font-weight:700}.msg.ok{color:var(--ok);font-weight:700}
+label.l{display:block;font-weight:700;font-size:.9rem;color:var(--sub);margin:12px 0 5px}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0 10px}
+.bar h2{flex:1;margin:0;text-align:center;font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.35rem;color:var(--pink)}
+.nav{width:42px;height:42px;border-radius:99px;border:2.5px solid #ffd3e2;background:#fff;color:var(--pink);font-size:1.2rem;cursor:pointer}
+.tabs{display:flex;gap:8px;justify-content:center;margin:0 0 10px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:.8rem;color:var(--sub);font-weight:700;margin-bottom:2px}
+.wk span:first-child,.wk span:last-child{color:#d6657a}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day{position:relative;aspect-ratio:1/1.12;border:2px solid #fbe4ec;border-radius:14px;background:#fff;padding:3px 2px;display:flex;flex-direction:column;align-items:center;cursor:pointer;font:inherit;color:var(--ink)}
+.day .n{font-size:.95rem;font-weight:700;line-height:1.5}
+.day.out{opacity:.38}
+.day.we .n{color:#d6657a}
+.day.today{background:#ffe3ee;border-color:var(--pink)}
+.day.sel{border-color:var(--pink);box-shadow:0 3px 0 var(--pink);transform:translateY(-1px)}
+.dots{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:auto;margin-bottom:4px;max-width:90%}
+.dots i{width:7px;height:7px;border-radius:99px;display:block}
+.dots b{font-size:.62rem;line-height:7px;color:var(--sub)}
+.dh{display:flex;align-items:center;gap:8px}.dh h3{flex:1;margin:0;font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400;font-size:1.15rem;color:var(--pink)}
+.ev{display:flex;align-items:center;gap:10px;border:2.5px solid var(--c);border-left-width:8px;border-radius:16px;padding:8px 10px;margin:8px 0;background:#fff;cursor:pointer}
+.ev .t{font-weight:700;color:var(--sub);min-width:3.2em;font-size:.92rem}
+.ev .ti{flex:1;overflow-wrap:anywhere}
+.ev .nt{display:block;color:var(--sub);font-size:.82rem}
+.ev.done .ti{text-decoration:line-through;color:#aaa}
+.ev .ck{width:26px;height:26px;border-radius:99px;border:2.5px solid var(--c);background:#fff;color:#fff;font-size:.95rem;line-height:1;cursor:pointer;flex:none}
+.ev.done .ck{background:var(--c)}
+.empty{color:var(--sub);text-align:center;padding:10px 0}
+.cats{display:flex;flex-wrap:wrap;gap:7px}
+.cat{font:inherit;border:2.5px solid var(--c);background:#fff;color:var(--ink);border-radius:99px;padding:4px 12px;cursor:pointer;font-size:.92rem}
+.cat.on{background:var(--c);font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grp{font-family:"Huninn","Noto Sans TC",sans-serif;color:var(--pink);margin:16px 0 4px;font-size:1.05rem}
+details>summary{cursor:pointer;color:var(--sub);font-size:.9rem;margin:8px 0}
+</style>
+</head>
+<body>
+<main>
+
+<section class="screen on" id="sLogin">
+  <div class="head"><div class="mascot" aria-hidden="true">📅</div><h1>我的行事曆</h1><p>BG 益智遊戲教室・管理者專用</p></div>
+  <div class="card">
+    <label class="l" for="em" style="margin-top:0">Email</label><input type="email" id="em" autocomplete="username">
+    <label class="l" for="pw">密碼</label><input type="password" id="pw" autocomplete="current-password">
+    <button class="btn main" id="go">登入</button>
+    <p class="msg" id="lmsg" role="status"></p>
+  </div>
+</section>
+
+<section class="screen" id="sApp">
+  <div class="tabs"><button class="small on" id="vMonth">📅 月曆</button><button class="small" id="vList">📝 接下來</button><button class="small" id="vOut">登出</button></div>
+
+  <div id="monthView">
+    <div class="bar"><button class="nav" id="prev" aria-label="上個月">‹</button><h2 id="ttl"></h2><button class="nav" id="next" aria-label="下個月">›</button></div>
+    <div style="text-align:center;margin-bottom:8px"><button class="small" id="today">回到今天</button></div>
+    <div class="wk"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+    <div class="grid" id="grid"></div>
+    <div class="card">
+      <div class="dh"><h3 id="dTitle"></h3></div>
+      <div id="dList"></div>
+    </div>
+  </div>
+
+  <div id="listView" style="display:none">
+    <p class="msg" id="lvMsg" role="status"></p>
+    <div id="upList"></div>
+  </div>
+
+  <div class="card" id="formCard" style="border-color:#d8c6ff;box-shadow:0 4px 0 #d8c6ff">
+    <div class="dh"><h3 id="fTitleH" style="color:#7a5bc7">➕ 新增行程</h3><button class="small" id="fCancel" style="display:none">取消</button></div>
+    <input type="text" id="fTitle" maxlength="80" placeholder="輸入行程，例如：家長會" style="margin-top:8px" enterkeyhint="done">
+    <div class="two" style="margin-top:8px">
+      <div><label class="l" style="margin:0 0 3px" for="fTime">時間（可不填）</label><input type="time" id="fTime"></div>
+      <div><label class="l" style="margin:0 0 3px" for="fDate">日期</label><input type="date" id="fDate"></div>
+    </div>
+    <label class="l">分類</label>
+    <div class="cats" id="fCats"></div>
+    <label class="l" for="fNote">備註（可不填）</label>
+    <input type="text" id="fNote" maxlength="200" placeholder="地點、要帶的東西…">
+    <button class="btn main" id="fSave">新增</button>
+    <button class="btn" id="fDel" style="display:none;color:#c0392b;border-color:#c0392b">刪除這個行程</button>
+    <p class="msg" id="fMsg" role="status"></p>
+  </div>
+  <p style="text-align:center"><a href="admin.html" style="color:var(--sub);font-size:.88rem">← 回後台</a></p>
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+function $(i){return document.getElementById(i)}
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function say(id,t,k){var m=$(id);m.textContent=t||'';m.className='msg'+(k?' '+k:'')}
+function errText(e){return (e&&(e.message||e.error_description))||String(e)}
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('on',s.id===id)})}
+function hm(t){return t?String(t).slice(0,5):''}
+var WD='日一二三四五六';
+var CATS=[['work','💼','工作','#ffb3cf'],['class','📚','課程','#8ec5ff'],['parent','👪','家長','#c3a8ff'],['life','🌿','私人','#7fd6ad'],['star','⭐','重要','#ffc94d']];
+function cat(k){for(var i=0;i<CATS.length;i++)if(CATS[i][0]===k)return CATS[i];return CATS[0]}
+
+var now=new Date(),Y=now.getFullYear(),M=now.getMonth(),SEL=ymd(now),EV=[],EDIT=null,FCAT='work',VIEW='month';
+function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+
+/* ---- 登入（和後台共用同一個登入，登入過就不用再輸入） ---- */
+$('go').addEventListener('click',async function(){
+  say('lmsg','登入中…');
+  var r=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+  if(r.error){say('lmsg','登入失敗，請檢查 Email 和密碼。','bad');return}
+  say('lmsg','');enter();
+});
+$('pw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click()});
+$('vOut').addEventListener('click',async function(){await sb.auth.signOut();show('sLogin')});
+function enter(){show('sApp');buildCats();setForm(null);loadMonth()}
+
+/* ---- 讀取行程 ---- */
+async function loadMonth(){
+  var first=new Date(Y,M,1),start=new Date(Y,M,1-first.getDay()),end=new Date(start.getFullYear(),start.getMonth(),start.getDate()+41);
+  var r=await sb.from('events').select('*').gte('ev_date',ymd(start)).lte('ev_date',ymd(end)).order('ev_date',{ascending:true}).order('ev_time',{ascending:true,nullsFirst:true});
+  if(r.error){EV=[];renderGrid(start);say('fMsg','讀取失敗：'+errText(r.error)+'（請確認已執行行事曆的 SQL）','bad');renderDay();return}
+  EV=r.data;renderGrid(start);renderDay();
+}
+function evOn(d){return EV.filter(function(e){return e.ev_date===d})}
+
+/* ---- 月曆 ---- */
+function renderGrid(start){
+  $('ttl').textContent=Y+' 年 '+(M+1)+' 月';
+  var g=$('grid');g.textContent='';var td=ymd(new Date());
+  for(var i=0;i<42;i++){
+    var d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),s=ymd(d);
+    var b=mk('button','day'+(d.getMonth()!==M?' out':'')+(d.getDay()%6===0?' we':'')+(s===td?' today':'')+(s===SEL?' sel':''));
+    b.type='button';b.appendChild(mk('span','n',d.getDate()));
+    var list=evOn(s);
+    if(list.length){var dots=mk('span','dots');list.slice(0,3).forEach(function(e){var i2=mk('i');i2.style.background=cat(e.cat)[3];if(e.done)i2.style.opacity='.35';dots.appendChild(i2)});if(list.length>3)dots.appendChild(mk('b',null,'+'+(list.length-3)));b.appendChild(dots)}
+    (function(s2,d2){b.addEventListener('click',function(){
+      SEL=s2;if(d2.getMonth()!==M){Y=d2.getFullYear();M=d2.getMonth();setForm(null);loadMonth();return}
+      if(!EDIT)$('fDate').value=SEL;renderGrid(start);renderDay()})})(s,d);
+    g.appendChild(b);
+  }
+}
+function renderDay(){
+  var p=SEL.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);
+  $('dTitle').textContent=(d.getMonth()+1)+' 月 '+d.getDate()+' 日　星期'+WD.charAt(d.getDay())+(SEL===ymd(new Date())?'（今天）':'');
+  var box=$('dList');box.textContent='';var list=evOn(SEL);
+  if(!list.length)box.appendChild(mk('div','empty','這天還沒有行程'));
+  list.forEach(function(e){box.appendChild(evNode(e))});
+}
+function evNode(e,showDate){
+  var c=cat(e.cat),n=mk('div','ev'+(e.done?' done':''));n.style.setProperty('--c',c[3]);
+  var ck=mk('button','ck',e.done?'✓':'');ck.type='button';ck.setAttribute('aria-label','完成');
+  ck.addEventListener('click',async function(ev){ev.stopPropagation();var nv=!e.done;var r=await sb.from('events').update({done:nv}).eq('id',e.id);if(r.error){say('fMsg','更新失敗：'+errText(r.error),'bad');return}e.done=nv;refresh()});
+  n.appendChild(ck);
+  n.appendChild(mk('span','t',e.ev_time?hm(e.ev_time):'全天'));
+  var ti=mk('span','ti',c[1]+' '+e.title);if(e.note)ti.appendChild(mk('span','nt',e.note));n.appendChild(ti);
+  n.addEventListener('click',function(){setForm(e);$('formCard').scrollIntoView({behavior:'smooth',block:'center'})});
+  return n;
+}
+function refresh(){if(VIEW==='month'){renderGrid(new Date(Y,M,1-new Date(Y,M,1).getDay()));renderDay()}else loadUpcoming()}
+$('prev').addEventListener('click',function(){M--;if(M<0){M=11;Y--}go1()});
+$('next').addEventListener('click',function(){M++;if(M>11){M=0;Y++}go1()});
+$('today').addEventListener('click',function(){var n=new Date();Y=n.getFullYear();M=n.getMonth();SEL=ymd(n);if(!EDIT)$('fDate').value=SEL;loadMonth()});
+function go1(){var d=new Date(Y,M,1);SEL=ymd(d);if(!EDIT)$('fDate').value=SEL;loadMonth()}
+
+/* ---- 接下來清單 ---- */
+$('vMonth').addEventListener('click',function(){setView('month')});
+$('vList').addEventListener('click',function(){setView('list')});
+function setView(v){VIEW=v;$('monthView').style.display=v==='month'?'':'none';$('listView').style.display=v==='list'?'':'none';$('vMonth').className='small'+(v==='month'?' on':'');$('vList').className='small'+(v==='list'?' on':'');if(v==='month')loadMonth();else loadUpcoming()}
+async function loadUpcoming(){
+  var a=new Date(),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+90);
+  var r=await sb.from('events').select('*').gte('ev_date',ymd(a)).lte('ev_date',ymd(b)).order('ev_date',{ascending:true}).order('ev_time',{ascending:true,nullsFirst:true});
+  var box=$('upList');box.textContent='';
+  if(r.error){say('lvMsg','讀取失敗：'+errText(r.error),'bad');return}
+  say('lvMsg',r.data.length?'接下來 90 天共 '+r.data.length+' 個行程':'接下來 90 天沒有行程。');
+  var cur='';
+  r.data.forEach(function(e){
+    if(e.ev_date!==cur){cur=e.ev_date;var p=cur.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);box.appendChild(mk('div','grp',(d.getMonth()+1)+' 月 '+d.getDate()+' 日　星期'+WD.charAt(d.getDay())+(cur===ymd(new Date())?'（今天）':'')))}
+    box.appendChild(evNode(e));
+  });
+}
+
+/* ---- 新增 / 編輯 ---- */
+function buildCats(){
+  var box=$('fCats');box.textContent='';
+  CATS.forEach(function(c){var b=mk('button','cat'+(FCAT===c[0]?' on':''),c[1]+' '+c[2]);b.type='button';b.style.setProperty('--c',c[3]);b.addEventListener('click',function(){FCAT=c[0];buildCats()});box.appendChild(b)});
+}
+function setForm(e){
+  EDIT=e;say('fMsg','');
+  $('fTitleH').textContent=e?'✏️ 修改行程':'➕ 新增行程';
+  $('fSave').textContent=e?'儲存修改':'新增';
+  $('fDel').style.display=e?'block':'none';$('fCancel').style.display=e?'':'none';
+  $('fTitle').value=e?e.title:'';$('fTime').value=e?hm(e.ev_time):'';$('fDate').value=e?e.ev_date:SEL;$('fNote').value=e?(e.note||''):'';
+  if(e)FCAT=e.cat||'work';buildCats();
+}
+$('fCancel').addEventListener('click',function(){setForm(null)});
+async function save(){
+  var t=$('fTitle').value.trim(),d=$('fDate').value;
+  if(!t){say('fMsg','請輸入行程內容。','bad');$('fTitle').focus();return}
+  if(!d){say('fMsg','請選擇日期。','bad');return}
+  var row={title:t,ev_date:d,ev_time:$('fTime').value||null,note:$('fNote').value.trim(),cat:FCAT};
+  $('fSave').disabled=true;say('fMsg','儲存中…');
+  var r=EDIT?await sb.from('events').update(row).eq('id',EDIT.id):await sb.from('events').insert(row);
+  $('fSave').disabled=false;
+  if(r.error){say('fMsg','儲存失敗：'+errText(r.error)+'（請確認已執行行事曆的 SQL，且已登入）','bad');return}
+  var was=EDIT;SEL=d;var p=d.split('-');Y=+p[0];M=+p[1]-1;
+  setForm(null);say('fMsg',was?'已修改 ✓':'已新增 ✓','ok');
+  if(VIEW==='month')await loadMonth();else await loadUpcoming();
+  if(!was)$('fTitle').focus();
+}
+$('fSave').addEventListener('click',save);
+$('fTitle').addEventListener('keydown',function(e){if(e.key==='Enter')save()});
+$('fDel').addEventListener('click',async function(){
+  if(!EDIT||!confirm('確定刪除「'+EDIT.title+'」？'))return;
+  var r=await sb.from('events').delete().eq('id',EDIT.id);
+  if(r.error){say('fMsg','刪除失敗：'+errText(r.error),'bad');return}
+  setForm(null);say('fMsg','已刪除。','ok');refresh();if(VIEW==='month')loadMonth();
+});
+
+sb.auth.getSession().then(function(r){if(r.data&&r.data.session)enter()});
+</script>
+</body>
+</html>
