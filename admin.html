@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>管理頁</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f8;--card:#fff;--ink:#17294d;--sub:#5b6b86;--line:#c9d4e3;--hl:#ffe36e;--accent:#2f5fd0;--on:#fff;--ok:#1d7a46;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#101826;--card:#1a2638;--ink:#e8eefb;--sub:#9db0cf;--line:#32435f;--hl:#6b5a10;--accent:#7ea2ff;--on:#0d1a33;--ok:#6fd49b;--bad:#ff9a90}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:960px;margin:0 auto;padding:20px 16px 40px;display:grid;gap:20px}
+@media(min-width:800px){.two{grid-template-columns:1fr 1fr;align-items:start}}
+.two{display:grid;gap:20px}
+h1{font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.9rem;margin:0}
+h1 span{background:linear-gradient(transparent 55%,var(--hl) 55%)}
+h2{margin:0}
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px}
+label{display:block;font-weight:700;margin:14px 0 6px}
+.first{margin-top:0}
+input[type=text],input[type=email],input[type=password],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px}
+textarea{min-height:110px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.drop{display:flex;justify-content:center;border:2px dashed var(--line);border-radius:10px;padding:16px;cursor:pointer;color:var(--sub);text-align:center;font-weight:400;margin:0}
+.hide{position:absolute;opacity:0;width:1px;height:1px}
+.count{font-size:.8rem;color:var(--sub);text-align:right}
+.btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;border-radius:8px;padding:10px 16px;cursor:pointer;border:1.5px solid var(--accent)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--accent);color:var(--on)}
+.ghost{background:transparent;color:var(--accent)}
+.msg{min-height:1.5em;color:var(--sub);margin:10px 0 0}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.photo{aspect-ratio:4/3;border-radius:10px;background:var(--bg);border:1.5px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:.9rem}
+.photo img{width:100%;height:100%;object-fit:cover}
+.meta{margin:14px 0 4px;color:var(--sub)}
+.title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.4rem;margin:2px 0 8px;overflow-wrap:anywhere}
+.desc{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{color:var(--sub)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.item{border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--card)}
+.item .meta{margin:10px 0 2px}.item .title{font-size:1.1rem}
+.item button{margin-top:10px;padding:6px 12px;font-size:.85rem}
+</style>
+<style>
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+.tab{background:transparent;color:var(--accent)}
+.tab.on{background:var(--accent);color:var(--on)}
+.field{margin:2px 0;font-size:.95rem;overflow-wrap:anywhere}
+.field b{color:var(--sub);font-weight:700}
+input[type=datetime-local]{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px}
+</style>
+<style>
+.item .pbtn{margin-right:8px}
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:10mm}
+  html,body{background:#fff!important;color:#000!important}
+  main{display:none!important}
+  #printArea{display:block}
+  .prec{page-break-after:always;color:#000;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif}
+  .prec:last-child{page-break-after:auto}
+  .ptitle{text-align:center;font-size:20pt;margin:0 0 6mm;font-weight:400;font-family:inherit;color:#000}
+  .pline{display:flex;justify-content:space-between;font-size:10.5pt;margin-bottom:2mm}
+  table.pt{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5pt}
+  .pt th,.pt td{border:1px solid #000;padding:2mm 2.5mm;text-align:left;vertical-align:middle;overflow-wrap:anywhere}
+  .pt th{background:#d9d9d9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pt td.pbody{height:40mm;vertical-align:top;white-space:pre-wrap}
+  .psign{display:flex;justify-content:space-between;margin-top:6mm;font-size:10.5pt;font-weight:700}
+  .prec img{display:block;max-width:100%;max-height:200mm;object-fit:contain;margin:4mm auto}
+  .pdesc{white-space:pre-wrap;font-size:12pt;line-height:1.7}
+  .pmeta{font-size:12pt;color:#444;margin:0 0 4mm}
+}
+
+.prec.sheetimg{page-break-inside:avoid;margin:0;padding:0}
+.prec.sheetimg img{display:block;width:210mm;height:296mm;max-width:none;max-height:none;margin:0}
+</style>
+</head>
+<body>
+<main>
+<h1><span>管理頁</span></h1>
+<section class="panel" id="login" style="max-width:420px">
+  <label class="first" for="em">Email</label>
+  <input type="email" id="em" autocomplete="username">
+  <label for="pw">密碼</label>
+  <input type="password" id="pw" autocomplete="current-password">
+  <div class="btns"><button class="primary" id="go">登入</button></div>
+  <p class="msg" id="lmsg" role="status"></p>
+</section>
+<section id="board" style="display:none">
+  <div class="tabs" role="tablist">
+    <button class="tab on" id="tabC" role="tab">課程資料卡</button>
+    <button class="tab" id="tabI" role="tab">事故單</button>
+    <button class="tab" id="tabS" role="tab">學習單</button>
+  </div>
+  <details class="panel" style="margin:0 0 14px"><summary style="cursor:pointer;font-weight:700">設定老師通關密碼（給首頁使用）</summary>
+    <p class="hint" style="margin:8px 0;color:var(--sub)">老師進入首頁要輸入這組密碼，才看得到班級和小朋友名單。至少 4 個字，可以隨時更換。</p>
+    <input type="text" id="tcode" maxlength="40" placeholder="輸入新的老師通關密碼" autocomplete="off">
+    <div class="btns"><button class="primary" id="tcodeGo">儲存密碼</button></div>
+    <p class="msg" id="tcodeMsg" role="status"></p>
+  </details>
+  <div id="orgRow" style="display:none;margin:0 0 12px"><label class="first" for="org">幼兒園名稱（匯出事故紀錄表時顯示在表頭）</label><input type="text" id="org" maxlength="40" placeholder="例如：○○幼兒園"></div>
+  <div class="btns" style="margin:0 0 14px;align-items:center"><h2>已收到：<span id="cnt">0</span></h2><button class="primary" id="exp">匯出 Word</button><button class="primary" id="prt">列印</button><button class="ghost" id="refresh">重新整理</button><button class="ghost" id="out">登出</button></div>
+  <p class="msg" id="bmsg"></p>
+  <div class="grid" id="list"></div>
+</section>
+</main>
+<div id="printArea" aria-hidden="true"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var $=function(i){return document.getElementById(i)};
+var data={course:[],incident:[],sheet:[]},err={course:'',incident:'',sheet:''},tab='course';
+function show(on){$('login').style.display=on?'none':'block';$('board').style.display=on?'block':'none'}
+function fmt(t){return (t||'').replace('T',' ')}
+function pubUrl(p){return sb.storage.from('photos').getPublicUrl(p).data.publicUrl}
+async function signedUrl(p){var r=await sb.storage.from('incident-photos').createSignedUrl(p,3600);return r.data&&r.data.signedUrl}
+function line(label,val){var d=document.createElement('p');d.className='field';var b=document.createElement('b');b.textContent=label+'：';d.appendChild(b);d.appendChild(document.createTextNode(val||''));return d}
+function mkPhoto(){var p=document.createElement('div');p.className='photo';p.textContent='沒有照片';return p}
+function putImg(p,src){p.textContent='';var i=document.createElement('img');i.loading='lazy';i.alt='照片';i.src=src;p.appendChild(i)}
+function delBtn(label,fn){var b=document.createElement('button');b.className='ghost';b.textContent='刪除';b.addEventListener('click',async function(){if(!confirm('確定刪除「'+label+'」？'))return;try{await fn();await load()}catch(e){$('bmsg').textContent='刪除失敗。'}});return b}
+function courseCard(d){
+  var el=document.createElement('div');el.className='item';var p=mkPhoto();
+  if(d.photo_path)putImg(p,pubUrl(d.photo_path));
+  var m=document.createElement('p');m.className='meta';m.textContent=d.class_name+'　'+d.student_name;
+  var t=document.createElement('h3');t.className='title';t.textContent=d.course_name;
+  var s=document.createElement('p');s.className='desc';s.textContent=d.description||'';
+  var b=delBtn(d.student_name,async function(){
+    var r=await sb.from('submissions').delete().eq('id',d.id);if(r.error)throw r.error;
+    if(d.photo_path)await sb.storage.from('photos').remove([d.photo_path]);
+  });
+  [p,m,t,s,printBtn(function(){printNow([d],'course')}),b].forEach(function(x){el.appendChild(x)});return el;
+}
+function incidentCard(d){
+  var el=document.createElement('div');el.className='item';var p=mkPhoto();
+  if(d.photo_path)signedUrl(d.photo_path).then(function(u){if(u)putImg(p,u)});
+  var t=document.createElement('h3');t.className='title';t.textContent='事故｜'+d.class_name+' '+d.child_name;
+  el.appendChild(p);el.appendChild(t);
+  el.appendChild(line('發生日期',d.incident_date));
+  el.appendChild(line('性別／年齡',d.gender+'／'+d.age));
+  el.appendChild(line('帶班老師',d.teacher_name));
+  el.appendChild(line('事故發生情形',d.situation));
+  el.appendChild(line('處理情形',d.handling));
+  el.appendChild(line('處理結果',d.result));
+  el.appendChild(line('後期預防整改措施',d.prevention));
+  el.appendChild(printBtn(function(){printNow([d],'incident')}));
+  el.appendChild(delBtn(d.child_name,async function(){
+    var r=await sb.from('incidents').delete().eq('id',d.id);if(r.error)throw r.error;
+    if(d.photo_path)await sb.storage.from('incident-photos').remove([d.photo_path]);
+  }));
+  return el;
+}
+
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+var SH_STARS=[['專注力','star_focus'],['反應能力','star_reaction'],['記憶力','star_memory'],['邏輯思考','star_logic']];
+var SH_IND=[['ind_focus','專注地玩遊戲：'],['ind_tolerance','培養遊戲的挫折容忍度：'],['ind_cleanup','遊戲完成時能主動收拾：'],['ind_rules','理解遊戲的玩法與遵守遊戲規則：']];
+var SH_OPT=['好棒','很好','加油中'];
+var SH_FONT='"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+function starRows(n){return ({1:[1],2:[2],3:[1,2],4:[2,2]})[n]||[]}
+async function loadImg(u){
+  if(!u)return null;
+  try{
+    var src=u;
+    if(/^https?:/.test(u)){var r=await fetch(u);if(!r.ok)return null;src=URL.createObjectURL(await r.blob())}
+    return await new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src});
+  }catch(e){return null}
+}
+async function sheetFonts(d){
+  var t='BG益智遊戲教室姓名：專注力反應能力記憶力邏輯思考好棒很好加油中操作日期家長簽名／'+SH_IND.map(function(x){return x[1]}).join('')+(d.game_name||'')+(d.student_name||'')+(d.play_date||'');
+  try{await Promise.all([document.fonts.load('400 40px Huninn',t),document.fonts.load('700 40px "Noto Sans TC"',t)])}catch(e){}
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function starPath(c,cx,cy,R){c.beginPath();for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5,r=i%2?R*0.45:R;c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a))}c.closePath()}
+function drawContain(c,img,x,y,w,h,r){
+  var s=Math.min(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s,dx=x+(w-dw)/2,dy=y+(h-dh)/2;
+  c.save();rr(c,dx,dy,dw,dh,r);c.clip();c.drawImage(img,dx,dy,dw,dh);c.restore();
+}
+function fitFont(c,txt,weight,sizePx,minPx,maxW){var s=sizePx;c.font=weight+' '+s+'px '+SH_FONT;while(c.measureText(txt).width>maxW&&s>minPx){s-=2;c.font=weight+' '+s+'px '+SH_FONT}}
+async function drawSheet(d,gameUrl,actUrls){
+  await sheetFonts(d);
+  var gi=await loadImg(gameUrl),ai=[];
+  for(var q=0;q<(actUrls||[]).length&&q<4;q++){var im=await loadImg(actUrls[q]);if(im)ai.push(im)}
+  var W=1588,H=2246,k=W/210,M=function(v){return v*k};
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
+  var G='#d9d9d9',T='#44585a';
+  c.fillStyle='#fff';c.fillRect(0,0,W,H);c.textBaseline='middle';
+  // header
+  c.fillStyle=G;c.beginPath();c.moveTo(M(8),M(7));c.lineTo(M(202),M(7));c.lineTo(M(202),M(24));c.ellipse(M(105),M(24),M(97),M(20),0,0,Math.PI,false);c.closePath();c.fill();
+  c.fillStyle=T;c.textAlign='left';
+  c.font='700 '+M(14)+'px '+SH_FONT;var w1=c.measureText('BG').width;
+  c.font='700 '+M(10.5)+'px '+SH_FONT;var w2=c.measureText('益智遊戲教室').width;
+  var tx=M(105)-(w1+M(3)+w2)/2;
+  c.font='700 '+M(14)+'px '+SH_FONT;c.fillText('BG',tx,M(23));
+  c.font='700 '+M(10.5)+'px '+SH_FONT;c.fillText('益智遊戲教室',tx+w1+M(3),M(24));
+  c.font=M(11)+'px sans-serif';c.fillText('🎲',M(16),M(23));c.fillText('🧩',M(186),M(23));
+  // panels
+  c.fillStyle=G;rr(c,M(8),M(50),M(94),M(76),M(9));c.fill();rr(c,M(108),M(50),M(94),M(76),M(9));c.fill();
+  c.fillStyle=T;c.textAlign='center';fitFont(c,d.game_name||'','700',M(7.5),M(4),M(84));c.fillText(d.game_name||'',M(55),M(59));
+  c.textAlign='left';var nm='姓名：'+(d.student_name||'');fitFont(c,nm,'700',M(7.5),M(4),M(82));c.fillText(nm,M(115),M(59));
+  c.fillStyle='#fff';rr(c,M(12),M(66),M(86),M(56),M(7));c.fill();rr(c,M(112),M(66),M(86),M(56),M(7));c.fill();
+  if(gi)drawContain(c,gi,M(14),M(68),M(82),M(52),M(5));
+  SH_STARS.forEach(function(sx,i){
+    var cx=M(115+(i%2)*41.5),cy=M(69+Math.floor(i/2)*26.5),cw=M(38.5),ch=M(23.5);
+    c.fillStyle=G;rr(c,cx,cy,cw,ch,M(6));c.fill();
+    c.fillStyle=T;c.textAlign='center';c.font='700 '+M(4.4)+'px '+SH_FONT;c.fillText(sx[0],cx+cw/2,cy+M(5.6));
+    var rows=starRows(+d[sx[1]]),dy=M(6.4),dx=M(7.8),yc=cy+M(15.8);
+    rows.forEach(function(n,ri){
+      var y=yc+(ri-(rows.length-1)/2)*dy;
+      for(var j=0;j<n;j++){var x=cx+cw/2+(j-(n-1)/2)*dx;starPath(c,x,y,M(3.1));c.fillStyle='#f3b22b';c.fill()}
+    });
+  });
+  // activity photos
+  c.fillStyle=G;rr(c,M(8),M(132),M(194),M(98),M(9));c.fill();
+  var n=ai.length,cells=[];
+  if(n===1)cells=[[13,137,184,88]];
+  else if(n===2)cells=[[13,137,90,88],[107,137,90,88]];
+  else if(n===3)cells=[[13,137,184,42],[13,183,90,42],[107,183,90,42]];
+  else if(n>=4)cells=[[13,137,90,42],[107,137,90,42],[13,183,90,42],[107,183,90,42]];
+  cells.forEach(function(p,i){drawContain(c,ai[i],M(p[0]),M(p[1]),M(p[2]),M(p[3]),M(3))});
+  // footer
+  c.fillStyle=G;rr(c,M(8),M(236),M(194),M(54),M(6));c.fill();
+  SH_IND.forEach(function(x,i){
+    var y=M(246.5+i*9);
+    c.fillStyle=T;c.textAlign='right';fitFont(c,x[1],'700',M(4.3),M(3),M(104));c.fillText(x[1],M(120),y);
+    SH_OPT.forEach(function(o,j){
+      var px=M(136+j*25);
+      if(d[x[0]]===o){c.fillStyle='#fff';rr(c,px-M(10.5),y-M(3.5),M(21),M(7),M(3.5));c.fill();c.strokeStyle=T;c.lineWidth=M(0.45);c.stroke()}
+      c.fillStyle=T;c.textAlign='center';c.font='700 '+M(4.3)+'px '+SH_FONT;c.fillText(o,px,y);
+    });
+  });
+  c.fillStyle=T;c.textAlign='left';c.font='700 '+M(4.5)+'px '+SH_FONT;
+  c.fillText('操作日期：'+(d.play_date||'').replace(/-/g,'/'),M(22),M(284));c.fillText('家長簽名：',M(116),M(284));
+  return cv;
+}
+function canvasBlob(cv){return new Promise(function(r){cv.toBlob(r,'image/jpeg',0.92)})}
+async function downloadSheetWord(cvs,name){
+  var D=docx,sections=[];
+  for(var i=0;i<cvs.length;i++){
+    var buf=await (await canvasBlob(cvs[i])).arrayBuffer();
+    sections.push({properties:{page:{size:{width:11906,height:16838},margin:{top:0,right:0,bottom:0,left:0,header:0,footer:0}}},children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:0,after:0},children:[new D.ImageRun({data:buf,type:'jpg',transformation:{width:781,height:1105}})]})]});
+  }
+  var blob=await D.Packer.toBlob(new D.Document({sections:sections}));
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+function printCanvases(cvs){
+  var st=document.getElementById('pgs');if(st)st.remove();
+  st=document.createElement('style');st.id='pgs';st.textContent='@page{size:A4;margin:0}';document.head.appendChild(st);
+  window.addEventListener('afterprint',function(){var s=document.getElementById('pgs');if(s)s.remove()},{once:true});
+  var a=document.getElementById('printArea');a.textContent='';var waits=[];
+  cvs.forEach(function(cv){
+    var w=document.createElement('div');w.className='prec sheetimg';var im=document.createElement('img');im.alt='學習單';
+    waits.push(new Promise(function(res){im.onload=im.onerror=function(){res()};setTimeout(res,6000)}));
+    im.src=cv.toDataURL('image/jpeg',0.92);w.appendChild(im);a.appendChild(w);
+  });
+  return Promise.all(waits).then(function(){window.print()});
+}
+function stamp(){var t=new Date(),p=function(n){return String(n).padStart(2,'0')};return t.getFullYear()+p(t.getMonth()+1)+p(t.getDate())}
+
+async function signedSheet(p){var r=await sb.storage.from('worksheet-photos').createSignedUrl(p,3600);return r.data&&r.data.signedUrl}
+async function sheetCanvasFor(d){
+  var g=d.photo_path?await signedSheet(d.photo_path):null;
+  var a=[],ap=d.activity_photos||[];
+  for(var i=0;i<ap.length;i++){var u=await signedSheet(ap[i]);if(u)a.push(u)}
+  return drawSheet(d,g,a);
+}
+async function exportSheetWord(list){
+  if(!list.length){$('bmsg').textContent='目前沒有資料可匯出。';return}
+  if(!window.docx){$('bmsg').textContent='Word 工具載入失敗，請檢查網路後重新整理頁面。';return}
+  var btn=$('exp');btn.disabled=true;$('bmsg').textContent='製作 Word 中，照片多時需要一些時間…';
+  try{
+    var cvs=[];for(var i=0;i<list.length;i++)cvs.push(await sheetCanvasFor(list[i]));
+    await downloadSheetWord(cvs,(list.length===1?'學習單_'+list[0].student_name+'_':'學習單_')+stamp()+'.docx');
+    $('bmsg').textContent='已匯出 '+list.length+' 張，每張一頁 A4。';
+  }catch(e){console.error(e);$('bmsg').textContent='匯出失敗，請稍後再試。'}
+  btn.disabled=false;
+}
+function sheetCard(d){
+  var box=document.createElement('div');box.className='item';var p=mkPhoto();
+  if(d.photo_path)signedSheet(d.photo_path).then(function(u){if(u)putImg(p,u)});
+  var t=document.createElement('h3');t.className='title';t.textContent=d.game_name+'｜'+d.student_name;
+  box.appendChild(p);box.appendChild(t);
+  if(d.class_name)box.appendChild(line('班級',d.class_name));
+  box.appendChild(line('操作日期',d.play_date));
+  box.appendChild(line('能力星星','專注 '+d.star_focus+'・反應 '+d.star_reaction+'・記憶 '+d.star_memory+'・邏輯 '+d.star_logic));
+  box.appendChild(line('遊戲表現',d.ind_focus+'／'+d.ind_tolerance+'／'+d.ind_cleanup+'／'+d.ind_rules));
+  box.appendChild(line('操作照片',((d.activity_photos||[]).length)+' 張'));
+  box.appendChild(printBtn(function(){printNow([d],'sheet')}));
+  var wb=document.createElement('button');wb.className='ghost pbtn';wb.textContent='Word';wb.addEventListener('click',function(){exportSheetWord([d])});box.appendChild(wb);
+  box.appendChild(delBtn(d.student_name,async function(){
+    var r=await sb.from('worksheets').delete().eq('id',d.id);if(r.error)throw r.error;
+    var del=(d.activity_photos||[]).slice();if(d.photo_path)del.push(d.photo_path);if(del.length)await sb.storage.from('worksheet-photos').remove(del);
+  }));
+  return box;
+}
+function render(){
+  var l=$('list');l.textContent='';
+  data[tab].forEach(function(d){l.appendChild(tab==='course'?courseCard(d):tab==='incident'?incidentCard(d):sheetCard(d))});
+  $('cnt').textContent=data[tab].length;
+  $('bmsg').textContent=err[tab]||(data[tab].length?'':'還沒有人送出。');
+  $('orgRow').style.display=tab==='incident'?'block':'none';
+  $('tabC').className='tab'+(tab==='course'?' on':'');$('tabI').className='tab'+(tab==='incident'?' on':'');$('tabS').className='tab'+(tab==='sheet'?' on':'');
+}
+async function load(){
+  $('bmsg').textContent='讀取中…';
+  var a=await sb.from('submissions').select('*').order('created_at',{ascending:false});
+  var b=await sb.from('incidents').select('*').order('created_at',{ascending:false});
+  data.course=a.error?[]:a.data;err.course=a.error?'讀取失敗：請確認登入的 Email 與 SQL 裡設定的相同。':'';
+  var c=await sb.from('worksheets').select('*').order('created_at',{ascending:false});
+  data.sheet=c.error?[]:c.data;err.sheet=c.error?'讀取失敗：學習單資料表可能還沒建立，請先執行學習單的 SQL。':'';
+  data.incident=b.error?[]:b.data;err.incident=b.error?'讀取失敗：事故單資料表可能還沒建立，請先執行事故單的 SQL。':'';
+  render();
+}
+function setTab(t){tab=t;render()}
+$('tabC').addEventListener('click',function(){setTab('course')});
+$('tabI').addEventListener('click',function(){setTab('incident')});
+$('tabS').addEventListener('click',function(){setTab('sheet')});
+
+function imgSize(buf){return new Promise(function(res,rej){var u=URL.createObjectURL(new Blob([buf]));var im=new Image();im.onload=function(){URL.revokeObjectURL(u);res({w:im.naturalWidth,h:im.naturalHeight})};im.onerror=rej;im.src=u})}
+async function photoPara(D,F,url){
+  try{
+    var buf=await (await fetch(url)).arrayBuffer();
+    var dm=await imgSize(buf),k=Math.min(1,480/dm.w,340/dm.h);
+    return new D.Paragraph({spacing:{before:200,after:240},children:[new D.ImageRun({data:buf,type:'jpg',transformation:{width:Math.round(dm.w*k),height:Math.round(dm.h*k)}})]});
+  }catch(e){return new D.Paragraph({children:[new D.TextRun({text:'（照片無法載入）',font:F,color:'999999'})]})}
+}
+function textParas(D,F,txt){return (txt||'').split('\n').map(function(line){return new D.Paragraph({spacing:{after:100,line:340},children:[new D.TextRun({text:line,size:26,font:F})]})})}
+function cell(D,F,children,w,shade){return new D.TableCell({width:{size:w,type:D.WidthType.PERCENTAGE},margins:{top:80,bottom:80,left:120,right:120},shading:shade?{type:D.ShadingType.CLEAR,fill:'EEF3F8',color:'auto'}:undefined,children:children})}
+function tc(D,F,txt,w,o){
+  o=o||{};
+  var paras=(txt||'').split('\n').map(function(line){return new D.Paragraph({alignment:o.center?D.AlignmentType.CENTER:undefined,spacing:{after:40,line:320},children:[new D.TextRun({text:line,size:o.size||22,font:F,bold:!!o.bold})]})});
+  return new D.TableCell({width:{size:w,type:D.WidthType.DXA},columnSpan:o.span,verticalAlign:o.mid?D.VerticalAlign.CENTER:undefined,margins:{top:70,bottom:70,left:110,right:110},shading:o.shade?{type:D.ShadingType.CLEAR,fill:'D9D9D9',color:'auto'}:undefined,children:paras});
+}
+async function incidentKids(D,F,d,i,org){
+  var W=[1300,2100,1300,1900,1300,1738],TOT=9638,out=[];
+  var year=(d.incident_date||'').slice(0,4);
+  out.push(new D.Paragraph({pageBreakBefore:i>0,alignment:D.AlignmentType.CENTER,spacing:{after:200},children:[new D.TextRun({text:'幼兒園意外傷害事故紀錄表',size:40,font:F})]}));
+  out.push(new D.Paragraph({tabStops:[{type:D.TabStopType.RIGHT,position:TOT}],spacing:{after:80},children:[new D.TextRun({text:'幼兒園名稱：'+(org||''),size:22,font:F}),new D.TextRun({text:'\t'+(year?year+'年':'      年'),size:22,font:F})]}));
+  var line={style:D.BorderStyle.SINGLE,size:6,color:'000000'};
+  function pair(a,b,c,e,f,g){return new D.TableRow({height:{value:520,rule:D.HeightRule.ATLEAST},children:[tc(D,F,a,W[0],{shade:1,bold:1,mid:1}),tc(D,F,b,W[1],{mid:1}),tc(D,F,c,W[2],{shade:1,bold:1,mid:1}),tc(D,F,e,W[3],{mid:1}),tc(D,F,f,W[4],{shade:1,bold:1,mid:1}),tc(D,F,g,W[5],{mid:1})]})}
+  function head(t){return new D.TableRow({height:{value:480,rule:D.HeightRule.ATLEAST},children:[tc(D,F,t,TOT,{span:6,shade:1,bold:1,mid:1})]})}
+  function body(t){return new D.TableRow({height:{value:2200,rule:D.HeightRule.ATLEAST},children:[tc(D,F,t,TOT,{span:6})]})}
+  var rows=[
+    pair('幼兒姓名',d.child_name,'幼兒性別',d.gender,'幼兒年齡',d.age),
+    pair('班　　級',d.class_name,'帶班老師',d.teacher_name,'發生日期',d.incident_date),
+    head('事故發生情形描述（寫明發生時間、地點、場合、原因和受傷部位）'),body(d.situation),
+    head('處理情形（寫明受傷情形及採取的臨時處理措施）'),body(d.handling),
+    head('處理結果（寫明是否恢復及恢復時間）'),body(d.result),
+    head('後期預防整改措施'),body(d.prevention)
+  ];
+  out.push(new D.Table({width:{size:TOT,type:D.WidthType.DXA},columnWidths:W,layout:D.TableLayoutType.FIXED,borders:{top:line,bottom:line,left:line,right:line,insideHorizontal:line,insideVertical:line},rows:rows}));
+  out.push(new D.Paragraph({tabStops:[{type:D.TabStopType.LEFT,position:3300},{type:D.TabStopType.LEFT,position:6500}],spacing:{before:200},children:[new D.TextRun({text:'帶班老師簽名：\t事故處理老師：\t安全管理老師：',size:22,font:F,bold:true})]}));
+  if(d.photo_path){
+    var u=await signedUrl(d.photo_path);
+    if(u){
+      out.push(new D.Paragraph({pageBreakBefore:true,spacing:{after:200},children:[new D.TextRun({text:'附件：現場照片（'+(d.child_name||'')+'）',size:26,font:F,bold:true})]}));
+      out.push(await photoPara(D,F,u));
+    }
+  }
+  return out;
+}
+
+
+function printBtn(fn){var b=document.createElement('button');b.className='ghost pbtn';b.textContent='列印';b.addEventListener('click',fn);return b}
+function pPair(tr,a,b){tr.appendChild(el('th','',a));tr.appendChild(el('td','',b))}
+function incidentPrint(d,org){
+  var wrap=el('div','prec');
+  wrap.appendChild(el('h1','ptitle','幼兒園意外傷害事故紀錄表'));
+  var ln=el('div','pline');ln.appendChild(el('span','','幼兒園名稱：'+org));ln.appendChild(el('span','',(d.incident_date||'').slice(0,4)+'年'));wrap.appendChild(ln);
+  var t=el('table','pt'),cg=document.createElement('colgroup');
+  [13.5,21.5,13.5,19.5,13.5,18.5].forEach(function(w){var c=document.createElement('col');c.style.width=w+'%';cg.appendChild(c)});t.appendChild(cg);
+  var r1=el('tr');pPair(r1,'幼兒姓名',d.child_name);pPair(r1,'幼兒性別',d.gender);pPair(r1,'幼兒年齡',d.age);t.appendChild(r1);
+  var r2=el('tr');pPair(r2,'班　　級',d.class_name);pPair(r2,'帶班老師',d.teacher_name);pPair(r2,'發生日期',d.incident_date);t.appendChild(r2);
+  [['事故發生情形描述（寫明發生時間、地點、場合、原因和受傷部位）',d.situation],['處理情形（寫明受傷情形及採取的臨時處理措施）',d.handling],['處理結果（寫明是否恢復及恢復時間）',d.result],['後期預防整改措施',d.prevention]].forEach(function(x){
+    var h=el('tr'),th=el('th','',x[0]);th.colSpan=6;h.appendChild(th);t.appendChild(h);
+    var b=el('tr'),td=el('td','pbody',x[1]);td.colSpan=6;b.appendChild(td);t.appendChild(b);
+  });
+  wrap.appendChild(t);
+  var sg=el('div','psign');['帶班老師簽名：','事故處理老師：','安全管理老師：'].forEach(function(x){sg.appendChild(el('span','',x))});wrap.appendChild(sg);
+  return wrap;
+}
+function imgReady(img){return new Promise(function(res){img.onload=img.onerror=function(){res()};setTimeout(res,8000)})}
+async function buildPrint(list,kind){
+  var area=$('printArea');area.textContent='';var waits=[];
+  var org=($('org').value||'').trim();
+  for(var i=0;i<list.length;i++){
+    var d=list[i];
+    if(kind==='incident'){
+      area.appendChild(incidentPrint(d,org));
+      if(d.photo_path){
+        var u=await signedUrl(d.photo_path);
+        if(u){var pg=el('div','prec');pg.appendChild(el('h2','ptitle','附件：現場照片（'+(d.child_name||'')+'）'));var im=document.createElement('img');pg.appendChild(im);waits.push(imgReady(im));im.src=u;area.appendChild(pg)}
+      }
+    }else if(kind==='sheet'){
+      var cvx=await sheetCanvasFor(d);
+      var wrapx=el('div','prec sheetimg');var imx=document.createElement('img');imx.alt='學習單';waits.push(imgReady(imx));imx.src=cvx.toDataURL('image/jpeg',0.92);wrapx.appendChild(imx);area.appendChild(wrapx);
+    }else{
+      var w=el('div','prec');
+      w.appendChild(el('h1','ptitle',d.course_name));
+      w.appendChild(el('p','pmeta','班級：'+d.class_name+'　　姓名：'+d.student_name));
+      if(d.photo_path){var im2=document.createElement('img');w.appendChild(im2);waits.push(imgReady(im2));im2.src=pubUrl(d.photo_path)}
+      w.appendChild(el('p','pdesc',d.description||''));
+      area.appendChild(w);
+    }
+  }
+  await Promise.all(waits);
+}
+async function printNow(list,kind){
+  if(!list.length){$('bmsg').textContent='目前沒有資料可列印。';return}
+  $('bmsg').textContent='準備列印…';
+  try{await buildPrint(list,kind);$('bmsg').textContent='';
+    if(kind==='sheet'){var st=document.getElementById('pgs');if(st)st.remove();st=document.createElement('style');st.id='pgs';st.textContent='@page{size:A4;margin:0}';document.head.appendChild(st);window.addEventListener('afterprint',function(){var s2=document.getElementById('pgs');if(s2)s2.remove()},{once:true})}
+    window.print()}
+  catch(e){console.error(e);$('bmsg').textContent='列印準備失敗，請稍後再試。'}
+}
+window.addEventListener('afterprint',function(){$('printArea').textContent=''});
+
+async function exportWord(){
+  var btn=$('exp'),list=data[tab].slice().reverse();
+  if(!list.length){$('bmsg').textContent='目前沒有資料可匯出。';return}
+  btn.disabled=true;$('bmsg').textContent='製作 Word 中，照片多時需要一些時間…';
+  try{
+    var D=docx,F='Microsoft JhengHei',kids=[];
+    for(var i=0;i<list.length;i++){
+      var d=list[i];
+      if(tab==='course'){
+        kids.push(new D.Paragraph({pageBreakBefore:i>0,spacing:{after:120},children:[new D.TextRun({text:d.course_name,bold:true,size:40,font:F})]}));
+        kids.push(new D.Paragraph({spacing:{after:240},children:[new D.TextRun({text:'班級：'+d.class_name+'　　姓名：'+d.student_name,size:26,font:F,color:'555555'})]}));
+        if(d.photo_path)kids.push(await photoPara(D,F,pubUrl(d.photo_path)));
+        textParas(D,F,d.description).forEach(function(x){kids.push(x)});
+      }else{
+        (await incidentKids(D,F,d,i,($('org').value||'').trim())).forEach(function(x){kids.push(x)});
+      }
+    }
+    var doc=new D.Document({sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,bottom:1134,left:1134,right:1134}}},children:kids}]});
+    var blob=await D.Packer.toBlob(doc);
+    var t=new Date(),pad=function(n){return String(n).padStart(2,'0')};
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=(tab==='course'?'課程資料_':'事故單_')+t.getFullYear()+pad(t.getMonth()+1)+pad(t.getDate())+'.docx';
+    document.body.appendChild(a);a.click();a.remove();
+    $('bmsg').textContent='已匯出 '+list.length+' 筆。';
+  }catch(e){console.error(e);$('bmsg').textContent='匯出失敗，請稍後再試。'}
+  btn.disabled=false;
+}
+try{$('org').value=localStorage.getItem('orgName')||''}catch(e){}
+$('org').addEventListener('input',function(){try{localStorage.setItem('orgName',$('org').value)}catch(e){}});
+$('exp').addEventListener('click',function(){if(tab==='sheet')exportSheetWord(data.sheet.slice().reverse());else exportWord()});
+$('prt').addEventListener('click',function(){printNow(data[tab].slice().reverse(),tab)});
+$('go').addEventListener('click',async function(){
+  $('lmsg').className='msg';$('lmsg').textContent='登入中…';
+  var r=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+  if(r.error){$('lmsg').className='msg bad';$('lmsg').textContent='登入失敗，請檢查 Email 和密碼。';return}
+  $('lmsg').textContent='';show(true);load();
+});
+$('out').addEventListener('click',async function(){await sb.auth.signOut();show(false)});
+$('tcodeGo').addEventListener('click',async function(){
+  var v=$('tcode').value.trim();var m=$('tcodeMsg');
+  if(v.length<4){m.className='msg bad';m.textContent='密碼至少 4 個字。';return}
+  m.className='msg';m.textContent='儲存中…';
+  var r=await sb.rpc('admin_set_code',{p_code:v});
+  if(r.error){m.className='msg bad';m.textContent='儲存失敗：'+(r.error.message||'')+'（請確認已執行首頁的 SQL，且已登入）';return}
+  $('tcode').value='';m.className='msg ok';m.textContent='已儲存。請把新密碼告訴老師。';
+});
+$('refresh').addEventListener('click',load);
+sb.auth.getSession().then(function(r){if(r.data&&r.data.session){show(true);load()}});
+</script>
+</body>
+</html>
