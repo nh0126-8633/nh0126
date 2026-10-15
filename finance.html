@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>初晴之森收支表</title>
+<style>
+:root{--ink:#2f3a45;--sub:#7b8794;--line:#dfe5ea;--bg:#f4f7f9;--card:#fff;--in:#1d7a46;--out:#c0392b;--main:#2b6f8f}
+*{box-sizing:border-box}html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Noto Sans TC","PingFang TC",sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:14px 12px calc(90px + env(safe-area-inset-bottom))}
+h1{font-size:1.2rem;margin:6px 0 12px;text-align:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-size:.85rem;color:var(--sub);margin:10px 0 4px}
+.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:700;background:var(--main);color:#fff;font-size:1rem}
+.btn.ghost{background:#fff;color:var(--main);border:1.5px solid var(--main)}
+.btn.red{background:#fff;color:var(--out);border:1.5px solid var(--out)}
+.btn:disabled{opacity:.5}
+.msg{min-height:1.2em;font-size:.9rem;color:var(--out);margin:8px 0 0}
+#gate{max-width:360px;margin:18vh auto 0;text-align:center}
+#gate .btn{width:100%;margin-top:12px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sum div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
+.sum small{display:block;color:var(--sub);font-size:.78rem}
+.sum b{font-size:1.02rem;display:block;margin-top:2px;word-break:break-all}
+.in{color:var(--in)}.out{color:var(--out)}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.tools input{flex:1}
+.row{display:grid;grid-template-columns:78px 1fr auto;gap:4px 8px;padding:11px 12px;border-bottom:1px solid var(--line);background:#fff;align-items:center}
+.row:active{background:#eef4f7}
+.row .d{font-size:.85rem;color:var(--sub)}
+.row .t{font-weight:600;word-break:break-all}
+.row .a{text-align:right;font-weight:700;white-space:nowrap}
+.row .n{grid-column:2/4;font-size:.8rem;color:var(--sub)}
+.row .bal{grid-column:1/4;font-size:.75rem;color:var(--sub);text-align:right}
+.list{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row:last-child{border-bottom:0}
+.tick{color:var(--in);font-weight:700;margin-right:4px}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));box-shadow:0 4px 14px rgba(0,0,0,.25);border-radius:999px;padding:15px 22px;font-size:1.05rem}
+#sheetBg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;z-index:10}
+#sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:18px 18px 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;display:none;z-index:11}
+.seg{display:flex;gap:8px}.seg button{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-weight:700}
+.seg button.on.i{background:#e6f5ec;border-color:var(--in);color:var(--in)}
+.seg button.on.o{background:#fdecea;border-color:var(--out);color:var(--out)}
+.chk{display:flex;align-items:center;gap:8px;margin:12px 0 4px}.chk input{width:22px;height:22px}
+.hd{display:flex;justify-content:space-between;align-items:center}
+.empty{padding:24px;text-align:center;color:var(--sub)}
+.top{display:flex;justify-content:flex-end;margin-bottom:2px}
+.top button{background:none;border:0;color:var(--sub);font-size:.85rem;padding:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div id="gate" class="card" style="display:none">
+  <h1>初晴之森托嬰中心<br>收支表</h1>
+  <input type="password" id="gateCode" autocomplete="current-password" placeholder="請輸入密碼">
+  <button class="btn" id="gateGo">進入</button>
+  <p class="msg" id="gateMsg" role="status"></p>
+ </div>
+ <div id="main" style="display:none">
+  <div class="top"><button id="logout">登出</button></div>
+  <h1>初晴之森托嬰中心收支表</h1>
+  <div class="sum">
+   <div><small>總收入</small><b class="in" id="sIn">0</b></div>
+   <div><small>總支出</small><b class="out" id="sOut">0</b></div>
+   <div><small>盈餘</small><b id="sBal">0</b></div>
+  </div>
+  <div class="tools">
+   <input id="q" placeholder="🔍 搜尋項目或備註">
+   <button class="btn ghost" id="csv">匯出</button>
+  </div>
+  <div class="list" id="list"></div>
+ </div>
+</div>
+<button class="btn fab" id="add" style="display:none">＋ 新增</button>
+<div id="sheetBg"></div>
+<div id="sheet">
+ <div class="hd"><b id="shTitle">新增一筆</b><button class="btn ghost" id="shClose" style="padding:8px 12px">✕ 關閉</button></div>
+ <label>日期</label><input type="date" id="fDate">
+ <label>項目</label><input id="fItem" placeholder="例如：3月租金、吉旺營造">
+ <label>收入或支出</label>
+ <div class="seg"><button class="i on" id="kIn">收入</button><button class="o" id="kOut">支出</button></div>
+ <label>金額</label><input id="fAmt" inputmode="numeric" placeholder="只要輸入數字">
+ <label>備註</label><textarea id="fNote" placeholder="（可不填）"></textarea>
+ <label class="chk" style="font-size:1rem;color:var(--ink)"><input type="checkbox" id="fChk">已核對（✓）</label>
+ <p class="msg" id="shMsg" role="status"></p>
+ <button class="btn" id="shSave" style="width:100%">儲存</button>
+ <button class="btn red" id="shDel" style="width:100%;margin-top:10px;display:none">刪除這筆</button>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL='https://aomiugvdrgmlafdfgfgh.supabase.co';
+var SUPABASE_KEY='sb_publishable_wXvz2GV4vdgfzV_3n60jwA_8gKnTExR';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+function $(i){return document.getElementById(i)}
+function lsGet(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var code=lsGet('fcode'),ROWS=[],kind='i',editId=null;
+async function rpc(fn,args){
+  var r=await sb.rpc(fn,Object.assign({p_code:code},args||{}));
+  if(r.error){if(/bad code/.test(r.error.message||''))logout();throw r.error}
+  return r.data;
+}
+function logout(){code='';try{localStorage.removeItem('fcode')}catch(e){}$('main').style.display='none';$('add').style.display='none';$('gate').style.display='block'}
+function money(n){n=Number(n);return (n<0?'−':'')+'$'+Math.abs(n).toLocaleString('en-US')}
+function roc(d){var p=String(d).slice(0,10).split('-');return (+p[0]-1911)+'/'+p[1]+'/'+p[2]}
+function todayISO(){var d=new Date(),m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(x<10?'0':'')+x}
+async function load(){
+  ROWS=(await rpc('f_list'))||[];draw();
+}
+function draw(){
+  var tin=0,tout=0;ROWS.forEach(function(r){tin+=+r.income;tout+=+r.expense});
+  $('sIn').textContent=money(tin);$('sOut').textContent=money(tout);
+  var b=tin-tout;$('sBal').textContent=money(b);$('sBal').className=b<0?'out':'in';
+  var q=$('q').value.trim(),box=$('list');box.textContent='';var bal=0,shown=0;
+  ROWS.forEach(function(r){
+    bal+=(+r.income)-(+r.expense);
+    if(q&&(r.item+' '+(r.note||'')).indexOf(q)<0)return;
+    shown++;
+    var el=document.createElement('div');el.className='row';
+    var d=document.createElement('div');d.className='d';d.textContent=roc(r.entry_date);
+    var t=document.createElement('div');t.className='t';
+    if(r.checked){var k=document.createElement('span');k.className='tick';k.textContent='✓';t.appendChild(k)}
+    t.appendChild(document.createTextNode(r.item));
+    var a=document.createElement('div');a.className='a '+(+r.income?'in':'out');a.textContent=(+r.income?'+':'−')+money(+r.income||+r.expense);
+    el.appendChild(d);el.appendChild(t);el.appendChild(a);
+    if(r.note){var n=document.createElement('div');n.className='n';n.textContent='📝 '+r.note;el.appendChild(n)}
+    if(!q){var bl=document.createElement('div');bl.className='bal';bl.textContent='累計 '+money(bal);el.appendChild(bl)}
+    el.addEventListener('click',function(){openSheet(r)});
+    box.appendChild(el);
+  });
+  if(!shown){var e=document.createElement('div');e.className='empty';e.textContent=q?'找不到「'+q+'」':'還沒有資料，按右下角「＋ 新增」';box.appendChild(e)}
+}
+function setKind(k){kind=k;$('kIn').className='i'+(k==='i'?' on':'');$('kOut').className='o'+(k==='o'?' on':'')}
+function openSheet(r){
+  editId=r?r.id:null;$('shTitle').textContent=r?'修改這一筆':'新增一筆';$('shMsg').textContent='';
+  $('fDate').value=r?String(r.entry_date).slice(0,10):todayISO();
+  $('fItem').value=r?r.item:'';
+  setKind(r&&+r.expense?'o':'i');
+  $('fAmt').value=r?(+r.income||+r.expense):'';
+  $('fNote').value=r?(r.note||''):'';$('fChk').checked=r?!!r.checked:false;
+  $('shDel').style.display=r?'':'none';
+  $('sheetBg').style.display='block';$('sheet').style.display='block';
+}
+function closeSheet(){$('sheetBg').style.display='none';$('sheet').style.display='none'}
+$('kIn').onclick=function(){setKind('i')};$('kOut').onclick=function(){setKind('o')};
+$('add').onclick=function(){openSheet(null)};$('shClose').onclick=closeSheet;$('sheetBg').onclick=closeSheet;
+$('shSave').onclick=async function(){
+  var amt=parseInt(String($('fAmt').value).replace(/[^0-9]/g,''),10),item=$('fItem').value.trim();
+  if(!$('fDate').value){$('shMsg').textContent='請選日期';return}
+  if(!item){$('shMsg').textContent='請填項目';return}
+  if(!(amt>=0)||isNaN(amt)){$('shMsg').textContent='請填金額（數字）';return}
+  $('shSave').disabled=true;
+  try{
+    await rpc('f_save',{p_id:editId,p_date:$('fDate').value,p_item:item,p_income:kind==='i'?amt:0,p_expense:kind==='o'?amt:0,p_note:$('fNote').value.trim(),p_checked:$('fChk').checked});
+    closeSheet();await load();
+  }catch(e){$('shMsg').textContent='儲存失敗：'+(e.message||e)}
+  $('shSave').disabled=false;
+};
+$('shDel').onclick=async function(){
+  if(!editId||!confirm('確定要刪除這一筆嗎？刪除後無法復原。'))return;
+  try{await rpc('f_delete',{p_id:editId});closeSheet();await load()}catch(e){$('shMsg').textContent='刪除失敗：'+(e.message||e)}
+};
+$('q').addEventListener('input',draw);
+$('csv').onclick=function(){
+  var L=['日期,項目,收入,支出,備註,已核對'];
+  ROWS.forEach(function(r){L.push([roc(r.entry_date),'"'+r.item.replace(/"/g,'""')+'"',+r.income||'',+r.expense||'','"'+(r.note||'').replace(/"/g,'""')+'"',r.checked?'✓':''].join(','))});
+  var tin=0,tout=0;ROWS.forEach(function(r){tin+=+r.income;tout+=+r.expense});
+  L.push(',總收入,'+tin+',,,');L.push(',總支出,,'+tout+',,');L.push(',盈餘,'+(tin-tout)+',,,');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+L.join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='初晴之森收支表.csv';document.body.appendChild(a);a.click();a.remove();
+};
+$('logout').onclick=logout;
+async function enter(){
+  $('gate').style.display='none';$('main').style.display='block';$('add').style.display='';
+  try{await load()}catch(e){if(code)alert('讀取失敗：'+(e.message||e))}
+}
+$('gateGo').onclick=async function(){
+  var c=$('gateCode').value;if(!c){$('gateMsg').textContent='請輸入密碼';return}
+  $('gateGo').disabled=true;$('gateMsg').textContent='';
+  try{
+    var r=await sb.rpc('f_login',{p_code:c});
+    if(r.error)throw r.error;
+    if(r.data===true){code=c;lsSet('fcode',c);$('gateCode').value='';await enter()}
+    else $('gateMsg').textContent='密碼不對，請再試一次';
+  }catch(e){$('gateMsg').textContent='連線失敗：'+(e.message||e)+'（請確認已執行 finance-setup.sql）'}
+  $('gateGo').disabled=false;
+};
+$('gateCode').addEventListener('keydown',function(e){if(e.key==='Enter')$('gateGo').click()});
+if(code)enter();else $('gate').style.display='block';
+</script>
+</body>
+</html>
