@@ -175,13 +175,10 @@ dialog#capDlg::backdrop{background:rgba(15,25,20,.45)}
   <header class="top">
     <div>
       <h1>教學週誌填寫器<span class="sample" id="sampleTag" hidden>目前是範例內容</span></h1>
-      <p class="lede">由上往下依序填完五個區塊，按下方「下載 Word」，就會產生跟原本範本相同格式的主題網＋教學活動週誌。內容會自動存在這台電腦的瀏覽器裡。</p>
+      <p class="lede">由上往下依序填完五個區塊，按下方「下載 Word」，就會產生跟原本範本相同格式的主題網＋教學活動週誌。內容只存在這支手機（或電腦）裡，下載完 Word 後按「開始新的一週」就會全部刪除。</p>
     </div>
     <div class="tools">
       <button id="bNewWeek" type="button">開始新的一週</button>
-      <button id="bExport" type="button">備份資料</button>
-      <label class="btn" for="fImport">讀取備份<input id="fImport" type="file" accept=".json,application/json" hidden></label>
-      <button id="bClear" type="button" class="ghost">全部清空</button>
     </div>
   </header>
 
@@ -21590,7 +21587,7 @@ function updateNav(){
 }
 function updateStatus(){
   const left = progress().reduce((s,x)=>s+x[2],0);
-  const saved = !saveOk ? '這個瀏覽器無法自動儲存，記得用「備份資料」' : lastSaved ? `已自動儲存 ${pad(lastSaved.getHours())}:${pad(lastSaved.getMinutes())}` : '內容會自動儲存';
+  const saved = !saveOk ? '這個瀏覽器無法自動儲存，請一次填完並下載 Word' : lastSaved ? `已自動儲存 ${pad(lastSaved.getHours())}:${pad(lastSaved.getMinutes())}` : '內容會自動儲存';
   $('#status').innerHTML = `${left?`還有 <b>${left}</b> 項沒填（照片也算）· `:'<b>全部填好了</b> · '}${saved}`;
 }
 
@@ -21786,19 +21783,19 @@ function ask(msg, fn){ pending = fn; $('#confirmMsg').textContent = msg; $('#con
 $('#cNo').onclick = () => { pending=null; $('#confirm').classList.remove('on'); };
 $('#cYes').onclick = () => { const f=pending; pending=null; $('#confirm').classList.remove('on'); if(f) f(); };
 
-$('#bNewWeek').onclick = () => ask('開始新的一週：週次加 1、日期往後一週，保留班級、主題、學習區名稱與指標；活動內容、照片、評量和省思會清空。建議先按「備份資料」存一份這週的。', ()=>{
-  const b = state.basic, old = state;
+/* 開始新的一週：全部重來，照片和內容都刪掉，只幫老師留下班級、設計者這類每週都一樣的資料 */
+$('#bNewWeek').onclick = () => ask('要開始新的一週嗎？這週的活動、照片、學習區、評量和省思都會刪除（請先確認 Word 已經下載）。班級、設計者、學年度和主題會保留，週次自動加 1、日期往後一週。', ()=>{
+  const b = state.basic;
   const n = blankState();
-  n.basic = {...b, week: /^\d+$/.test(b.week)? String(+b.week+1): b.week, themeWeek: /^\d+$/.test(b.themeWeek)? String(+b.themeWeek+1): b.themeWeek,
+  const inc = v => /^\d+$/.test(v) ? String(+v+1) : v;
+  n.basic = {...n.basic, school:b.school, cls:b.cls, designers:b.designers, year:b.year, term:b.term, themeNo:b.themeNo, themeName:b.themeName, age:b.age,
+             week: inc(b.week), themeWeek: inc(b.themeWeek),
              start: b.start?addDays(b.start,7):'', end: b.start?addDays(b.start,11):''};
-  n.web = old.web;
-  n.acts = old.acts.map((_,i)=>blankAct(n.basic.start?addDays(n.basic.start,Math.min(i,4)):''));
-  n.areas = old.areas.map((a,i)=>({name:a.name, indicator:a.indicator, date:n.basic.start?addDays(n.basic.start,Math.min(i,4)):'', photo:null}));
-  n.evals = old.evals.map(()=>({text:'',ok:null}));
-  n.sign = {...old.sign};
-  state = n; commit(); window.scrollTo(0,0); toast(`已開始第 ${n.basic.week} 週`);
+  n.acts = n.acts.map((_,i)=>blankAct(n.basic.start?addDays(n.basic.start,i):''));
+  n.areas.forEach((a,i)=>{ a.date = n.basic.start?addDays(n.basic.start,Math.min(i,4)):''; });
+  n.sign = {teachers:state.sign.teachers, principal:''};
+  state = n; commit(); window.scrollTo(0,0); toast(`已開始第 ${n.basic.week} 週，上週的照片和內容都已刪除`);
 });
-$('#bClear').onclick = () => ask('確定要清空所有內容嗎？這個動作無法復原，建議先備份。', ()=>{ state = blankState(); commit(); toast('已清空'); });
 
 /* 下載（claude.ai 的下載功能；本機開啟時用一般下載） */
 const dlP = Promise.resolve(null);
@@ -21820,7 +21817,6 @@ async function saveFile(filename, blob){
   } else toast('這裡無法下載檔案，請直接用 Chrome、Edge 或 Safari 開啟這個網址');
 }
 const fileBase = () => `${state.basic.cls||'班級'}教案${state.basic.week||''}`;
-$('#bExport').onclick = () => saveFile(fileBase()+'-備份.json', new Blob([JSON.stringify(state)],{type:'application/json'}));
 async function onImport(input){
   const f = input.files[0]; input.value=''; if(!f) return;
   try{
