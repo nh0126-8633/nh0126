@@ -113,6 +113,39 @@ textarea.tall{min-height:220px}
   .area .ind{grid-column:1/-1}
   .grid .wide{grid-column:auto}
 }
+/* 手機版：老師大多用手機填寫 */
+@media (max-width:600px){
+  .wrap{padding-block:16px 150px}
+  h1{font-size:25px}
+  .lede{font-size:14px}
+  header.top .tools button,header.top .tools .btn{font-size:13px;padding:6px 10px}
+  section.card{padding:18px 14px}
+  section.card>h2{font-size:20px}
+  /* iOS 字小於 16px 會在點欄位時自動放大畫面，造成跑版 */
+  input[type=text],input[type=date],input:not([type]),select,textarea{font-size:16px}
+  input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;display:block}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px}
+  .grid .wide{grid-column:1/-1}
+  .act{padding:12px;border-radius:8px}
+  .act-head .tools{width:100%;justify-content:flex-end}
+  .photos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .area{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"name del" "ind ind" "date photo";align-items:start;padding:12px}
+  .area>:nth-child(1){grid-area:name}
+  .area>:nth-child(2){grid-area:ind}
+  .area>:nth-child(3){grid-area:date}
+  .area>:nth-child(4){grid-area:photo}
+  .area>:nth-child(5){grid-area:del;justify-self:end;align-self:start}
+  .eval{grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:"no text text" ". seg del";gap:8px 8px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .eval>:nth-child(1){grid-area:no}
+  .eval>:nth-child(2){grid-area:text}
+  .eval>:nth-child(3){grid-area:seg;justify-self:start}
+  .eval>:nth-child(4){grid-area:del;justify-self:end}
+  .seg label{padding:8px 16px}
+  .bar .in{flex-wrap:nowrap;gap:10px;padding-top:10px;padding-bottom:10px}
+  .status{font-size:12px;line-height:1.4}
+  button.primary{padding:10px 14px;flex:none}
+  .toast{bottom:84px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -21371,6 +21404,10 @@ function fillDatalist(list){
 const getP = (o,p) => p.split('.').reduce((a,k)=>a==null?a:a[k], o);
 function setP(o,p,v){ const ks=p.split('.'); const last=ks.pop(); const t=ks.reduce((a,k)=>a[k],o); t[last]=v; }
 
+/* 文字框依內容自動長高，手機上不用在小框裡捲動 */
+function grow(t){ t.style.height='auto'; t.style.height = Math.min(Math.max(t.scrollHeight+2, 86), 640) + 'px'; }
+window.addEventListener('resize', ()=>document.querySelectorAll('#form textarea').forEach(grow));
+
 /* ---------- AI 狀態 ---------- */
 let sampleFn = null, aiOn = false, aiBusy = null, aiCtl = null;
 const aiBtn = (act, key, label) => aiOn ? `<button type="button" class="ai small" data-act="${act}" data-key="${key}"${aiBusy?' disabled':''}>${aiBusy===act+key?'AI 撰寫中…':label}</button>` : '';
@@ -21407,7 +21444,7 @@ function render(){
     ${field('basic.themeNo','第幾個主題',{req:1,ph:'例：第二'})}
     ${field('basic.themeName','主題名稱',{req:1,ph:'例：小畫家玩創意',wide:1})}
     ${field('basic.themeWeek','主題第幾週',{req:1,ph:'例：2'})}
-    ${field('basic.age','年齡層（給 AI 參考）',{type:'select',options:['幼幼班','小班','中班','大班','混齡']})}
+    ${field('basic.age','年齡層',{type:'select',options:['幼幼班','小班','中班','大班','混齡']})}
     ${field('basic.school','園所名稱',{wide:1})}
   </div>
   <div class="preview-line" id="titlePreview"></div>
@@ -21421,7 +21458,7 @@ function render(){
     const k = `acts.${i}`;
     h.push(`<div class="act" id="act-${i}"><div class="act-head"><h3>活動${NUM[i]||i+1}　<span style="color:var(--muted);font-size:14px;font-family:var(--f-body)">${roc(a.date,'.',true)} ${wd(a.date)}</span></h3>
       <div class="tools">${a._undo?`<button type="button" class="small" data-act="undoAct" data-key="${i}">復原 AI 之前的內容</button>`:''}${aiBtn('aiAct',i,'✦ AI 幫我寫')}${state.acts.length>1?`<button type="button" class="ghost small" data-act="rmAct" data-key="${i}">刪除這個活動</button>`:''}</div></div>
-      <div class="grid">${field(k+'.name','活動名稱',{req:1})}${field(k+'.date','日期',{type:'date'})}${field(k+'.indicator','學習指標',{req:1,wide:1,list:'indList',ph:'可從之前用過的指標挑選'})}</div>
+      <div class="grid">${field(k+'.name','活動名稱',{req:1,wide:1})}${field(k+'.date','日期',{type:'date'})}${field(k+'.indicator','學習指標',{req:1,wide:1,list:'indList',ph:'可從之前用過的指標挑選'})}</div>
       <div class="flow">${field(k+'.start','一、啟始活動',{type:'area',req:1})}${field(k+'.dev','二、發展活動',{type:'area',req:1})}${field(k+'.sum','三、綜合活動',{type:'area',req:1})}</div>
       <div class="photos">${a.photos.map((p,j)=>phBox(p.src,'rmPhoto',`${i}.${j}`,`${k}.photos.${j}.cap`,p.cap,(a.draftCaps&&a.draftCaps[j])||'照片說明')).join('')}${a.photos.length<4?addPh(k, a.photos.length?`還可以再放 ${4-a.photos.length} 張`:'可一次選多張'):''}</div>
     </div>`);
@@ -21458,6 +21495,7 @@ function render(){
   $('#form').innerHTML = h.join('');
   $('#sampleTag').hidden = !state.sample;
   updateTitlePreview(); updateNav(); updateStatus();
+  document.querySelectorAll('#form textarea').forEach(grow);
 }
 
 function titles(){
@@ -21503,6 +21541,7 @@ function onEdit(e){
   setP(state,k,v);
   if(state.sample){ state.sample=false; $('#sampleTag').hidden=true; }
   if(el.classList.contains('empty') && filled(v)) el.classList.remove('empty');
+  if(el.tagName==='TEXTAREA') grow(el);
   const c = document.querySelector(`[data-count="${k}"]`); if(c) c.textContent = `${String(v).length} 字`;
   if(k==='basic.start' && e.type==='change' && v){
     state.basic.end = addDays(v,4);
@@ -21705,14 +21744,14 @@ async function saveFile(filename, blob){
       const c = err && err.code;
       if(c==='declined') toast('已取消下載');
       else if(c==='rate_limited') toast('下載視窗已經開著，請先處理它');
-      else toast('這裡無法下載檔案，請直接用 Chrome 或 Edge 開啟這個檔案');
+      else toast('這裡無法下載檔案，請直接用 Chrome、Edge 或 Safari 開啟這個網址');
     }
     return;
   }
   if(window.top === window){
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast('已下載：'+filename);
-  } else toast('這裡無法下載檔案，請直接用 Chrome 或 Edge 開啟這個檔案');
+  } else toast('這裡無法下載檔案，請直接用 Chrome、Edge 或 Safari 開啟這個網址');
 }
 const fileBase = () => `${state.basic.cls||'班級'}教案${state.basic.week||''}`;
 $('#bExport').onclick = () => saveFile(fileBase()+'-備份.json', new Blob([JSON.stringify(state)],{type:'application/json'}));
