@@ -21472,7 +21472,7 @@ function titles(){
 }
 function updateTitlePreview(){
   const t = titles(); const el = $('#titlePreview'); if(!el) return;
-  el.innerHTML = `<small>Word 裡的標題會是：</small>${esc(t.log1)}<br>${esc(t.log2)}<small>日期：${esc(t.range||'（請填起始日期）')}</small>`;
+  el.innerHTML = `<small>Word 標題預覽（這裡不能直接改，會依上面的欄位自動產生。要改標題，請改上方的「主題名稱」「週次」「第幾個主題」等欄位）</small>${esc(t.log1)}<br>${esc(t.log2)}<small>日期：${esc(t.range||'（請填起始日期）')}</small>`;
 }
 
 /* ---------- 進度 ---------- */
