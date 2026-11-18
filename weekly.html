@@ -75,7 +75,18 @@ textarea.tall{min-height:220px}
 .ph .img{position:relative;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--sunk);border:1px solid var(--line)}
 .ph .img img{width:100%;height:100%;object-fit:cover;display:block}
 .ph .img button{position:absolute;top:6px;right:6px;background:var(--surface);padding:2px 8px;font-size:12px}
-.ph input{font-size:13px;padding:6px 8px}
+.ph .img img[data-act]{cursor:pointer}
+.cap-btn{width:100%;justify-content:flex-start;text-align:left;white-space:normal;font-size:13px;line-height:1.5;padding:7px 9px;background:var(--sunk);min-height:40px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cap-btn.none{border-style:dashed;color:var(--muted);background:transparent;display:flex}
+dialog#capDlg{border:1px solid var(--line);border-radius:14px;padding:0;background:var(--surface);color:var(--ink);width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:max(12px,6vh) auto auto;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+dialog#capDlg::backdrop{background:rgba(15,25,20,.45)}
+.cap-form{display:flex;flex-direction:column;gap:12px;padding:18px 18px 16px}
+.cap-form h3{margin:0;font-family:var(--f-display);font-size:20px}
+.cap-sub{margin:-8px 0 0;color:var(--muted);font-size:13px}
+#capImg{width:100%;max-height:30vh;object-fit:contain;border-radius:8px;background:var(--sunk)}
+#capText{font-size:16px;min-height:110px}
+.cap-actions{display:flex;justify-content:flex-end;gap:10px}
+.cap-actions button{min-width:88px;justify-content:center;padding:10px 16px}
 .add-ph{aspect-ratio:4/3;border:1.5px dashed var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);cursor:pointer;font-size:14px;text-align:center;padding:8px}
 .add-ph:hover{border-color:var(--accent);color:var(--accent)}
 .add-ph input{position:absolute;width:1px;height:1px;opacity:0}
@@ -145,6 +156,9 @@ textarea.tall{min-height:220px}
   .status{font-size:12px;line-height:1.4}
   button.primary{padding:10px 14px;flex:none}
   .toast{bottom:84px}
+  dialog#capDlg{margin-top:12px}
+  #capImg{max-height:18vh}
+  .cap-form{padding:16px 14px 14px;gap:10px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -181,6 +195,19 @@ textarea.tall{min-height:220px}
   <button class="primary" type="button" id="bDocx">下載 Word</button>
 </div></div>
 <div class="toast" id="toast" role="status"></div>
+
+<dialog id="capDlg" aria-labelledby="capTitle">
+  <form method="dialog" class="cap-form">
+    <h3 id="capTitle">照片說明</h3>
+    <p class="cap-sub" id="capSub"></p>
+    <img id="capImg" alt="">
+    <label class="f" for="capText">這張照片在做什麼？
+      <textarea id="capText" rows="4" placeholder=""></textarea>
+    </label>
+    <p class="hint" id="capHint" style="margin:0"></p>
+    <div class="cap-actions"><button type="button" id="capCancel">取消</button><button type="submit" class="primary" value="ok" id="capOk">儲存</button></div>
+  </form>
+</dialog>
 
 <script>(function(global2, factory) {
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global2 = typeof globalThis !== "undefined" ? globalThis : global2 || self, factory(global2.docx = {}));
@@ -21404,6 +21431,31 @@ function fillDatalist(list){
 const getP = (o,p) => p.split('.').reduce((a,k)=>a==null?a:a[k], o);
 function setP(o,p,v){ const ks=p.split('.'); const last=ks.pop(); const t=ks.reduce((a,k)=>a[k],o); t[last]=v; }
 
+/* 照片說明：點一下彈出大的輸入框，手機打字不會卡 */
+let capKey = null;
+function openCap(key, ph){
+  const m = key.match(/^acts\.(\d+)\.photos\.(\d+)\.cap$/); if(!m) return;
+  const a = state.acts[+m[1]], p = a && a.photos[+m[2]]; if(!p) return;
+  capKey = key;
+  const dlg = $('#capDlg');
+  $('#capSub').textContent = `活動${NUM[+m[1]]||(+m[1]+1)}${a.name?'「'+a.name+'」':''}・第 ${+m[2]+1} 張・${roc(a.date,'.',true)}`;
+  $('#capImg').src = p.src;
+  const t = $('#capText'); t.value = p.cap || ''; t.placeholder = ph || '例：幼兒運用滴管加顏料進行混色實驗';
+  $('#capHint').textContent = '寫一句就好，約 15～30 字。會印在 Word 裡照片的下方。';
+  if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+  setTimeout(()=>{ t.focus(); t.setSelectionRange(t.value.length, t.value.length); }, 50);
+}
+function closeCap(save){
+  const dlg = $('#capDlg');
+  if(save && capKey){ setP(state, capKey, $('#capText').value.trim()); commit(); toast('照片說明已儲存'); }
+  capKey = null;
+  if(dlg.open){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+}
+$('#capDlg').addEventListener('submit', e=>{ e.preventDefault(); closeCap(true); });
+$('#capCancel').addEventListener('click', ()=>closeCap(false));
+$('#capDlg').addEventListener('cancel', e=>{ e.preventDefault(); closeCap(false); });
+$('#capDlg').addEventListener('click', e=>{ if(e.target.id==='capDlg') closeCap(false); });
+
 /* 文字框依內容自動長高，手機上不用在小框裡捲動 */
 function grow(t){ t.style.height='auto'; t.style.height = Math.min(Math.max(t.scrollHeight+2, 86), 640) + 'px'; }
 window.addEventListener('resize', ()=>document.querySelectorAll('#form textarea').forEach(grow));
@@ -21426,7 +21478,7 @@ const field = (k, label, opt={}) => {
   return `<label class="f${opt.wide?' wide':''}" for="${k}">${label}${ctl}${opt.count?`<span class="count" data-count="${k}">${String(v).length} 字</span>`:''}</label>`;
 };
 const addPh = (target, note, multiple=true) => `<label class="add-ph">＋ 加照片<small>${note}</small><input type="file" accept="image/*" ${multiple?'multiple':''} data-photo="${target}"></label>`;
-const phBox = (src, rmAct, rmKey, capKey, capVal, capPh) => `<div class="ph"><div class="img"><img src="${src}" alt=""><button type="button" data-act="${rmAct}" data-key="${rmKey}">移除</button></div>${capKey?`<input type="text" data-k="${capKey}" id="${capKey}" value="${esc(capVal)}" placeholder="${esc(capPh||'照片說明')}">`:''}</div>`;
+const phBox = (src, rmAct, rmKey, capKey, capVal, capPh) => `<div class="ph"><div class="img"><img src="${src}" alt="" ${capKey?`data-act="editCap" data-key="${capKey}" data-ph="${esc(capPh||'')}"`:''}><button type="button" data-act="${rmAct}" data-key="${rmKey}">移除</button></div>${capKey?`<button type="button" class="cap-btn${filled(capVal)?'':' none'}" data-act="editCap" data-key="${capKey}" data-ph="${esc(capPh||'')}">${filled(capVal)?esc(capVal):'＋ 寫照片說明'}</button>`:''}</div>`;
 
 function render(){
   const b = state.basic;
@@ -21570,6 +21622,7 @@ document.addEventListener('click', e=>{
   else if(act==='addEval'){ state.evals.push({text:'',ok:null}); }
   else if(act==='rmEval'){ state.evals.splice(+key,1); }
   else if(act==='allOk'){ state.evals.forEach(x=>x.ok=true); }
+  else if(act==='editCap'){ return openCap(key, b.dataset.ph); }
   else if(act==='aiAct'){ return aiAct(+key); }
   else if(act==='aiEval'){ return aiEval(); }
   else if(act==='aiReflect'){ return aiReflect(); }
