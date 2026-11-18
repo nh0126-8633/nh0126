@@ -71,6 +71,10 @@ textarea.tall{min-height:220px}
 .act-head h3{font-family:var(--f-display);font-size:19px;margin:0}
 .flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.phase{display:flex;flex-direction:column;gap:8px;min-width:0}
+.slot{display:flex;flex-direction:column;gap:4px}
+.slot-lab{font-size:12px;color:var(--muted)}
+.slot .add-ph{position:relative}
 .ph{display:flex;flex-direction:column;gap:6px;min-width:0}
 .ph .img{position:relative;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--sunk);border:1px solid var(--line)}
 .ph .img img{width:100%;height:100%;object-fit:cover;display:block}
@@ -140,6 +144,10 @@ dialog#capDlg::backdrop{background:rgba(15,25,20,.45)}
   .act{padding:12px;border-radius:8px}
   .act-head .tools{width:100%;justify-content:flex-end}
   .photos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .flow{gap:18px}
+  .phase{padding-bottom:16px;border-bottom:1px dashed var(--line)}
+  .phase:last-child{border-bottom:0;padding-bottom:0}
+  .slot{width:min(100%,240px)}
   .area{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"name del" "ind ind" "date photo";align-items:start;padding:12px}
   .area>:nth-child(1){grid-area:name}
   .area>:nth-child(2){grid-area:ind}
@@ -21343,7 +21351,9 @@ const WD = ['日','一','二','三','四','五','六'];
 const wd = s => s ? '週' + WD[new Date(s+'T00:00:00').getDay()] : '';
 
 /* ---------- 資料 ---------- */
-const blankAct = (date='') => ({name:'',date,indicator:'',start:'',dev:'',sum:'',photos:[]});
+const blankAct = (date='') => ({name:'',date,indicator:'',start:'',dev:'',sum:'',photos:[null,null,null]});
+/* 三個階段，各對應一張照片（photos[0]=啟始、[1]=發展、[2]=綜合） */
+const PHASES = [['start','一、啟始活動'],['dev','二、發展活動'],['sum','三、綜合活動']];
 function blankState(){
   return {v:1, sample:false,
     basic:{school:'臺南市私立資優生幼兒園',year:'',term:'第一',themeNo:'',themeName:'',themeWeek:'',week:'',cls:'',designers:'',start:'',end:'',age:'中班'},
@@ -21438,7 +21448,7 @@ function openCap(key, ph){
   const a = state.acts[+m[1]], p = a && a.photos[+m[2]]; if(!p) return;
   capKey = key;
   const dlg = $('#capDlg');
-  $('#capSub').textContent = `活動${NUM[+m[1]]||(+m[1]+1)}${a.name?'「'+a.name+'」':''}・第 ${+m[2]+1} 張・${roc(a.date,'.',true)}`;
+  $('#capSub').textContent = `活動${NUM[+m[1]]||(+m[1]+1)}${a.name?'「'+a.name+'」':''}・${(PHASES[+m[2]]||['',''])[1].slice(2)}的照片・${roc(a.date,'.',true)}`;
   $('#capImg').src = p.src;
   const t = $('#capText'); t.value = p.cap || ''; t.placeholder = ph || '例：幼兒運用滴管加顏料進行混色實驗';
   $('#capHint').textContent = '寫一句就好，約 15～30 字。會印在 Word 裡照片的下方。';
@@ -21505,14 +21515,13 @@ function render(){
   </section>`);
 
   /* 2 活動 */
-  h.push(`<section class="card" id="s-acts"><h2><span class="n">2</span>活動流程與照片</h2><p class="hint">每個活動填名稱、學習指標和三段流程，再放 3 張照片。照片會排在 Word 裡同一個活動的旁邊，日期自動用活動日期。${aiOn?'<br><b>AI 幫我寫：</b>只要填活動名稱，在三個欄位隨手寫幾個重點（教材、提問、做法），按下按鈕就會補成完整的三段文字和照片說明。照片本身不會傳給 AI。':''}</p>`);
+  h.push(`<section class="card" id="s-acts"><h2><span class="n">2</span>活動流程與照片</h2><p class="hint">每個活動填名稱、學習指標和三段流程。每一段下面放一張照片：啟始、發展、綜合各一張，Word 裡照片會排在對應那一段文字的旁邊，日期自動用活動日期。${aiOn?'<br><b>AI 幫我寫：</b>只要填活動名稱，在三個欄位隨手寫幾個重點（教材、提問、做法），按下按鈕就會補成完整的三段文字和照片說明。照片本身不會傳給 AI。':''}</p>`);
   state.acts.forEach((a,i)=>{
     const k = `acts.${i}`;
     h.push(`<div class="act" id="act-${i}"><div class="act-head"><h3>活動${NUM[i]||i+1}　<span style="color:var(--muted);font-size:14px;font-family:var(--f-body)">${roc(a.date,'.',true)} ${wd(a.date)}</span></h3>
       <div class="tools">${a._undo?`<button type="button" class="small" data-act="undoAct" data-key="${i}">復原 AI 之前的內容</button>`:''}${aiBtn('aiAct',i,'✦ AI 幫我寫')}${state.acts.length>1?`<button type="button" class="ghost small" data-act="rmAct" data-key="${i}">刪除這個活動</button>`:''}</div></div>
       <div class="grid">${field(k+'.name','活動名稱',{req:1,wide:1})}${field(k+'.date','日期',{type:'date'})}${field(k+'.indicator','學習指標',{req:1,wide:1,list:'indList',ph:'可從之前用過的指標挑選'})}</div>
-      <div class="flow">${field(k+'.start','一、啟始活動',{type:'area',req:1})}${field(k+'.dev','二、發展活動',{type:'area',req:1})}${field(k+'.sum','三、綜合活動',{type:'area',req:1})}</div>
-      <div class="photos">${a.photos.map((p,j)=>phBox(p.src,'rmPhoto',`${i}.${j}`,`${k}.photos.${j}.cap`,p.cap,(a.draftCaps&&a.draftCaps[j])||'照片說明')).join('')}${a.photos.length<4?addPh(k, a.photos.length?`還可以再放 ${4-a.photos.length} 張`:'可一次選多張'):''}</div>
+      <div class="flow">${PHASES.map(([key,label],j)=>{ const p=a.photos[j]; return `<div class="phase">${field(k+'.'+key,label,{type:'area',req:1})}<div class="slot"><span class="slot-lab">${label.slice(2)}的照片</span>${p?phBox(p.src,'rmPhoto',`${i}.${j}`,`${k}.photos.${j}.cap`,p.cap,(a.draftCaps&&a.draftCaps[j])||''):addPh(`${k}.photos.${j}`, j===0&&!a.photos.some(Boolean)?'可一次選 3 張，依序放入':'', j===0)}</div></div>`; }).join('')}</div>
     </div>`);
   });
   h.push(`<div style="margin-top:14px"><button type="button" data-act="addAct">＋ 新增活動</button></div></section>`);
@@ -21570,7 +21579,7 @@ const filled = v => !!String(v??'').trim();
 function progress(){
   const b = state.basic;
   const basic = ['cls','designers','week','start','year','themeNo','themeName','themeWeek'].filter(k=>!filled(b[k])).length;
-  let acts = 0; state.acts.forEach(a=>{ acts += ['name','indicator','start','dev','sum'].filter(k=>!filled(a[k])).length + (a.photos.length?0:1); });
+  let acts = 0; state.acts.forEach(a=>{ acts += ['name','indicator','start','dev','sum'].filter(k=>!filled(a[k])).length + [0,1,2].filter(j=>!a.photos[j]).length; });
   let areas = 0; state.areas.forEach(a=>{ areas += ['name','indicator'].filter(k=>!filled(a[k])).length + (a.photo?0:1); });
   let ev = 0; state.evals.forEach(e=>{ ev += (filled(e.text)?0:1) + (e.ok===null?1:0); });
   const rf = filled(state.reflect)?0:1;
@@ -21613,8 +21622,8 @@ document.addEventListener('click', e=>{
   const b = e.target.closest('[data-act]'); if(!b) return;
   const key = b.dataset.key; const act = b.dataset.act;
   if(act==='addAct'){ const last = state.acts[state.acts.length-1]; state.acts.push(blankAct(last&&last.date?addDays(last.date,1):'')); }
-  else if(act==='rmAct'){ const i=+key; const a=state.acts[i]; if(filled(a.name)||filled(a.dev)||a.photos.length){ return ask(`要刪除「活動${NUM[i]||i+1}${a.name?'：'+a.name:''}」嗎？這個活動的文字和照片都會移除。`, ()=>{ state.acts.splice(i,1); commit(); }); } state.acts.splice(i,1); }
-  else if(act==='rmPhoto'){ const [i,j]=key.split('.').map(Number); state.acts[i].photos.splice(j,1); }
+  else if(act==='rmAct'){ const i=+key; const a=state.acts[i]; if(filled(a.name)||filled(a.dev)||a.photos.some(Boolean)){ return ask(`要刪除「活動${NUM[i]||i+1}${a.name?'：'+a.name:''}」嗎？這個活動的文字和照片都會移除。`, ()=>{ state.acts.splice(i,1); commit(); }); } state.acts.splice(i,1); }
+  else if(act==='rmPhoto'){ const [i,j]=key.split('.').map(Number); state.acts[i].photos[j]=null; }
   else if(act==='rmAreaPhoto'){ state.areas[+key].photo=null; }
   else if(act==='rmWeb'){ state.web=null; }
   else if(act==='addArea'){ state.areas.push({name:'',indicator:'',date:state.basic.start||'',photo:null}); }
@@ -21627,7 +21636,7 @@ document.addEventListener('click', e=>{
   else if(act==='aiEval'){ return aiEval(); }
   else if(act==='aiReflect'){ return aiReflect(); }
   else if(act==='aiStop'){ if(aiCtl) aiCtl.abort(); return; }
-  else if(act==='undoAct'){ const a=state.acts[+key]; const u=a._undo; Object.assign(a,{start:u.start,dev:u.dev,sum:u.sum,indicator:u.indicator}); a.photos.forEach((p,j)=>{ if(u.caps[j]!==undefined) p.cap=u.caps[j]; }); delete a._undo; }
+  else if(act==='undoAct'){ const a=state.acts[+key]; const u=a._undo; Object.assign(a,{start:u.start,dev:u.dev,sum:u.sum,indicator:u.indicator}); a.photos.forEach((p,j)=>{ if(p && u.caps[j]!=null) p.cap=u.caps[j]; }); delete a._undo; }
   else if(act==='undoReflect'){ state.reflect = state._undoReflect; delete state._undoReflect; }
   else return;
   commit();
@@ -21657,7 +21666,7 @@ async function aiRun(key, fn){
 function aiAct(i){
   const a = state.acts[i];
   if(!filled(a.name)){ toast('請先填這個活動的名稱'); return; }
-  const n = a.photos.length;
+  const n = a.photos.some(Boolean) ? 3 : 0;
   const prompt = `你是臺灣幼兒園的資深教保員，正在寫教學活動週誌。請用繁體中文、臺灣幼教用語，替下面這個活動寫「啟始活動、發展活動、綜合活動」三段。
 
 對象：${state.basic.age}幼兒
@@ -21675,7 +21684,7 @@ function aiAct(i){
 - 發展活動約 120–200 字，寫出具體的操作步驟；步驟多時可用換行分段，不要用項目符號。
 - 綜合活動約 80–130 字，包含分享或討論方式，以及「老師統整：……」。
 - 不要編造幼兒姓名或具體人數。
-${n?`- 另外依活動進行順序，寫 ${n} 句照片說明，每句 15–30 字，例如「幼兒運用滴管加顏料進行混色實驗」。`:''}
+${n?`- 另外寫 3 句照片說明，依序是「啟始活動」「發展活動」「綜合活動」這三段各自的照片情境，每句 15–30 字，例如「幼兒運用滴管加顏料進行混色實驗」。`:''}
 
 園所範例的寫法：${STYLE}
 
@@ -21684,11 +21693,11 @@ ${n?`- 另外依活動進行順序，寫 ${n} 句照片說明，每句 15–30 �
     const r = await sampleFn.json(prompt, {signal, cache:false});
     if(!r || typeof r!=='object' || !r.dev) throw {code:'invalid_json'};
     const cur = state.acts[i]; if(cur !== a) return;
-    a._undo = {start:a.start, dev:a.dev, sum:a.sum, indicator:a.indicator, caps:a.photos.map(p=>p.cap)};
+    a._undo = {start:a.start, dev:a.dev, sum:a.sum, indicator:a.indicator, caps:a.photos.map(p=>p?p.cap:null)};
     a.start = String(r.start||''); a.dev = String(r.dev||''); a.sum = String(r.sum||'');
     const guessed = !filled(a.indicator) && filled(r.indicator);
     if(guessed) a.indicator = String(r.indicator);
-    if(Array.isArray(r.caps)) a.photos.forEach((p,j)=>{ if(r.caps[j]) p.cap = String(r.caps[j]); });
+    if(Array.isArray(r.caps)) a.photos.forEach((p,j)=>{ if(p && r.caps[j]) p.cap = String(r.caps[j]); });
     state.sample = false;
     toast(guessed ? '已寫好草稿。學習指標是 AI 建議的，請對照課綱確認' : '已寫好草稿，請再看過修改');
   });
@@ -21754,14 +21763,18 @@ async function onPhotos(input){
   const target = input.dataset.photo; const files = [...input.files]; input.value='';
   if(!files.length) return;
   toast('照片處理中…');
-  let bad = 0;
+  let bad = 0; const slotUsed = new Set();
   for(const f of files){
     let p; try{ p = await shrink(f, target==='web'?2200:1600, target==='web'?0.92:0.85); }catch(e){ bad++; continue; }
     if(target==='web'){ state.web = p; break; }
-    const obj = getP(state,target);
-    if(target.startsWith('areas.')){ obj.photo = p; break; }
-    if(obj.photos.length>=4) break;
-    obj.photos.push({...p, cap:(obj.draftCaps && obj.draftCaps[obj.photos.length]) || ''});
+    if(target.startsWith('areas.')){ getP(state,target).photo = p; break; }
+    /* 活動照片：放進點選的那一格；一次選多張時，依序放進後面還空著的格子 */
+    const m = target.match(/^acts\.(\d+)\.photos\.(\d+)$/); if(!m) break;
+    const a = state.acts[+m[1]];
+    const j = !slotUsed.size ? +m[2] : [0,1,2].find(x=>x>+m[2] && !a.photos[x] && !slotUsed.has(x));
+    if(j==null) break;
+    slotUsed.add(j);
+    a.photos[j] = {...p, cap:(a.photos[j]&&a.photos[j].cap) || (a.draftCaps && a.draftCaps[j]) || ''};
   }
   commit();
   toast(bad ? `有 ${bad} 張照片讀不到。iPhone 的 HEIC 照片請先轉成 JPG 再上傳。` : '照片已加入');
@@ -21837,6 +21850,7 @@ async function buildDocx(){
     columnSpan: span>1?span:undefined, rowSpan: o.rowSpan>1?o.rowSpan:undefined,
     width:{size:width(i,span), type:D.WidthType.DXA},
     verticalAlign: o.top ? D.VerticalAlign.TOP : D.VerticalAlign.CENTER,
+    borders: o.borders ? Object.fromEntries(Object.entries(o.borders).filter(([,v])=>v)) : undefined,
     margins:{top:70,bottom:70,left:110,right:110}});
   const txt = (s, i, span=1, o={}) => cell(para(s,{center:o.center!==false, bold:o.bold}), i, span, o);
   const vertical = (s, i, o={}) => cell([...s].map(ch=>para(ch,{center:true})), i, 1, o);
@@ -21854,27 +21868,29 @@ async function buildDocx(){
   if(state.web) page1.push(new D.Paragraph({alignment:D.AlignmentType.CENTER, children:[img(state.web,19.5,22)]}));
 
   /* 週誌表格 */
-  /* 每個活動一列：左邊是活動文字，右邊就是這個活動自己的照片 */
-  const actText = (a,i) => {
-    const out = [para(`活動${NUM[i]||i+1}：`,{bold:true}), para(`活動名稱：${a.name||''}`), para(`學習指標：${a.indicator||''}`)];
-    [['一、啟始活動：',a.start],['二、發展活動：',a.dev],['三、綜合活動：',a.sum]].forEach(([h,s])=>{ out.push(para(h,{bold:true,before:60})); out.push(...paras(s,{indent:true})); });
+  /* 每個活動分三列：啟始／發展／綜合，每一段文字的右邊就是那一段的照片 */
+  const phaseText = (a,i,j) => {
+    const [key,label] = PHASES[j];
+    const out = j===0 ? [para(`活動${NUM[i]||i+1}：`,{bold:true}), para(`活動名稱：${a.name||''}`), para(`學習指標：${a.indicator||''}`)] : [];
+    out.push(para(label+'：',{bold:true,before:j===0?60:0}));
+    out.push(...paras(a[key],{indent:true}));
     return out;
   };
-  const actPhotos = a => {
-    const out = [];
-    a.photos.forEach((p,j)=>{
-      out.push(new D.Paragraph({alignment:D.AlignmentType.CENTER, spacing:{before:j?160:0}, keepNext:true, children:[img(p,5.2,7)]}));
-      out.push(para(roc(a.date,'.',true),{center:true,size:20,keepNext:filled(p.cap)}));
-      if(filled(p.cap)) out.push(para(p.cap,{center:true,size:20}));
-    });
+  const phasePhoto = (a,j) => {
+    const p = a.photos[j]; if(!p) return [];
+    const out = [new D.Paragraph({alignment:D.AlignmentType.CENTER, keepNext:true, children:[img(p,5.2,6.5)]}),
+                 para(roc(a.date,'.',true),{center:true,size:20,keepNext:filled(p.cap)})];
+    if(filled(p.cap)) out.push(para(p.cap,{center:true,size:20}));
     return out;
   };
+  /* 同一個活動內的三段之間不畫橫線，看起來仍是一個活動 */
+  const inner = j => ({ top: j>0 ? none : undefined, bottom: j<2 ? none : undefined });
   const rows = [];
   const R = (cells,o={}) => rows.push(new D.TableRow({children:cells, cantSplit:o.cantSplit}));
   R([txt('班級',0,2), txt(b.cls,2,2), txt('設計者',4), txt(b.designers,5,4)]);
   R([txt('主題名稱',0,2), txt(b.themeName,2,3), txt('日期',5), txt(t.range,6,3)]);
-  R([vertical('活動流程',0,{rowSpan:state.acts.length+1}), txt('活動內容',1,6), txt('活動照片',7,2)],{cantSplit:true});
-  state.acts.forEach((a,i)=>R([cell(actText(a,i),1,6,{top:true}), cell(actPhotos(a),7,2,{top:true})]));
+  R([vertical('活動流程',0,{rowSpan:state.acts.length*3+1}), txt('活動內容',1,6), txt('活動照片',7,2)],{cantSplit:true});
+  state.acts.forEach((a,i)=>[0,1,2].forEach(j=>R([cell(phaseText(a,i,j),1,6,{top:true,borders:inner(j)}), cell(phasePhoto(a,j),7,2,{top:true,borders:inner(j)})])));
   const nA = state.areas.length;
   R([vertical('學習區活動紀錄',0,{rowSpan:nA+1}), txt('學習指標',1,6), txt('學習區照片',7,2)]);
   state.areas.forEach(a=>{
