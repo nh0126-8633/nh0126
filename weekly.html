@@ -21867,7 +21867,7 @@ async function buildDocx(){
   /* 每個活動分三列：啟始／發展／綜合，每一段文字的右邊就是那一段的照片 */
   const phaseText = (a,i,j) => {
     const [key,label] = PHASES[j];
-    const out = j===0 ? [para(`活動${NUM[i]||i+1}：`,{bold:true}), para(`活動名稱：${a.name||''}`), para(`學習指標：${a.indicator||''}`)] : [];
+    const out = j===0 ? [para(`活動${NUM[i]||i+1}：`,{bold:true,before:i?240:0}), para(`活動名稱：${a.name||''}`), para(`學習指標：${a.indicator||''}`)] : [];
     out.push(para(label+'：',{bold:true,before:j===0?60:0}));
     out.push(...paras(a[key],{indent:true}));
     return out;
@@ -21879,14 +21879,15 @@ async function buildDocx(){
     if(filled(p.cap)) out.push(para(p.cap,{center:true,size:20}));
     return out;
   };
-  /* 同一個活動內的三段之間不畫橫線，看起來仍是一個活動 */
-  const inner = j => ({ top: j>0 ? none : undefined, bottom: j<2 ? none : undefined });
+  /* 整個活動區不畫橫線（活動之間、段落之間都不畫），看起來像一大格，只有照片和文字對齊 */
+  const lastAct = state.acts.length - 1;
+  const inner = (i,j) => ({ top: (i>0 || j>0) ? none : undefined, bottom: (i<lastAct || j<2) ? none : undefined });
   const rows = [];
   const R = (cells,o={}) => rows.push(new D.TableRow({children:cells, cantSplit:o.cantSplit}));
   R([txt('班級',0,2), txt(b.cls,2,2), txt('設計者',4), txt(b.designers,5,4)]);
   R([txt('主題名稱',0,2), txt(b.themeName,2,3), txt('日期',5), txt(t.range,6,3)]);
   R([vertical('活動流程',0,{rowSpan:state.acts.length*3+1}), txt('活動內容',1,6), txt('活動照片',7,2)],{cantSplit:true});
-  state.acts.forEach((a,i)=>[0,1,2].forEach(j=>R([cell(phaseText(a,i,j),1,6,{top:true,borders:inner(j)}), cell(phasePhoto(a,j),7,2,{top:true,borders:inner(j)})])));
+  state.acts.forEach((a,i)=>[0,1,2].forEach(j=>R([cell(phaseText(a,i,j),1,6,{top:true,borders:inner(i,j)}), cell(phasePhoto(a,j),7,2,{top:true,borders:inner(i,j)})])));
   const nA = state.areas.length;
   R([vertical('學習區活動紀錄',0,{rowSpan:nA+1}), txt('學習指標',1,6), txt('學習區照片',7,2)]);
   state.areas.forEach(a=>{
